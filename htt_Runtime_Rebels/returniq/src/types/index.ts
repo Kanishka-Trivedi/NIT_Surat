@@ -9,6 +9,7 @@ export interface Order {
     order_date: string;
     status: 'delivered' | 'shipped' | 'processing';
     brand_id: string;
+    variant?: string; // e.g. "Size M", "Size 10, Black"
 }
 
 export interface ReturnRequest {
@@ -166,3 +167,110 @@ export const RETURN_REASONS: { value: ReturnReasonCategory; label: string }[] = 
     { value: 'changed_mind', label: 'Changed my mind' },
     { value: 'other', label: 'Other reason' },
 ];
+
+
+// ─── OpenLeaf – Hyperlocal Swap Types ────────────────────────────────
+
+export interface SwapMatch {
+    id: string;
+    return_id: string;              // the initiating return
+    matched_return_id: string;      // the matched return
+    distance_km: number;
+    match_score: number;            // 0-1
+    matched_user_name: string;      // anonymised: "User in Indiranagar"
+    matched_user_area: string;
+    matched_product_variant: string; // what they have - "Size 10"
+    desired_product_variant: string; // what they want - "Size 9"
+    meetup_suggestions: MeetupPoint[];
+    status: 'pending' | 'accepted' | 'declined' | 'expired';
+    created_at: string;
+}
+
+export interface MeetupPoint {
+    id: string;
+    name: string;
+    address: string;
+    lat: number;
+    lng: number;
+    distance_user1_km: number;
+    distance_user2_km: number;
+    type: 'cafe' | 'mall' | 'station' | 'park' | 'other';
+    icon: string;
+}
+
+export interface SwapEvent {
+    id: string;
+    return_id: string;
+    event_type: 'match_found' | 'user_accepted' | 'location_chosen' | 'gps_verified' | 'photo_verified' | 'completed' | 'cancelled';
+    event_data: Record<string, unknown>;
+    created_at: string;
+}
+
+export interface SwapMessage {
+    id: string;
+    return_id: string;
+    sender_email: string;
+    sender_name: string;
+    message: string;
+    created_at: string;
+}
+
+export interface AIPhotoAnalysis {
+    authentic: boolean;
+    condition: 'like_new' | 'good' | 'fair' | 'poor';
+    tags_attached: boolean;
+    damage_detected: boolean;
+    damage_description: string | null;
+    return_eligible: boolean;
+    confidence: number; // 0-1
+}
+
+export interface UserProfile {
+    id: string;
+    email: string;
+    name: string;
+    phone: string | null;
+    total_orders: number;
+    total_returns: number;
+    return_rate: number;
+    trust_score: number; // 0-1
+    account_created_at: string;
+}
+
+export interface SwapCoordination {
+    swap_id: string;
+    return_id: string;
+    partner_return_id: string;
+    partner_name: string;
+    partner_area: string;
+    your_product: string;
+    your_variant: string;
+    their_product: string;
+    their_variant: string;
+    meetup: MeetupPoint;
+    scheduled_time: string | null;
+    qr_code: string;
+    status: 'scheduled' | 'in_progress' | 'verifying' | 'completed' | 'cancelled';
+    events: SwapEvent[];
+    messages: SwapMessage[];
+}
+
+export interface SwapVerificationResult {
+    gps_verified: boolean;
+    qr_verified: boolean;
+    photo_verified: boolean;
+    all_verified: boolean;
+    credit_awarded: number;
+}
+
+// ─── Extended Dashboard Stats (with swap metrics) ────────────────────
+
+export interface SwapDashboardStats extends DashboardStats {
+    swapsCompleted: number;
+    swapsInProgress: number;
+    shippingSaved: number;
+    returnsPrevented: number;
+    swapSuccessRate: number;
+    avgSwapDistance: number;
+    totalCreditsAwarded: number;
+}

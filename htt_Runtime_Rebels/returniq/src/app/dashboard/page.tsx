@@ -203,6 +203,7 @@ export default function DashboardPage() {
                     {[
                         { href: '/dashboard', icon: Icon.grid, label: 'Dashboard', active: true },
                         { href: '/dashboard/analytics', icon: Icon.chart, label: 'Analytics', active: false },
+                        { href: '/return/options?returnId=demo&product=Classic%20Oxford%20Shirt&variant=Size%20M&price=4499&orderId=ORD-10240', icon: Icon.refresh, label: 'Swaps Demo', active: false },
                         ...(isAdmin ? [{ href: '/dashboard/settings', icon: Icon.settings, label: 'Settings', active: false }] : []),
                     ].map(link => (
                         <a key={link.label} href={link.href} className={`sidebar-link ${link.active ? 'active' : ''}`}
@@ -299,6 +300,37 @@ export default function DashboardPage() {
                             <div className="stat-card-icon" style={{ background: 'rgba(255,255,255,0.2)', color: 'white' }}>{Icon.handshake}</div>
                             <div className="stat-card-value" style={{ color: 'white' }}>+{stats.socialProofUplift}%</div>
                             <div className="stat-card-label" style={{ color: 'rgba(255,255,255,0.85)' }}>Exchange Uplift from Social Proof</div>
+                        </div>
+                    </div>
+                )}
+
+                {/* ─── OpenLeaf Swap Stats ─── */}
+                {stats && (
+                    <div style={{ marginBottom: '24px' }}>
+                        <h3 style={{ fontSize: '14px', fontWeight: 700, color: '#374151', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span style={{ fontSize: '16px' }}>⭐</span> OpenLeaf Swap Metrics
+                        </h3>
+                        <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
+                            <div className="stat-card" style={{ background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', border: 'none' }}>
+                                <div className="stat-card-icon" style={{ background: 'rgba(255,255,255,0.2)', color: 'white' }}>{Icon.refresh}</div>
+                                <div className="stat-card-value" style={{ color: 'white' }}>4</div>
+                                <div className="stat-card-label" style={{ color: 'rgba(255,255,255,0.85)' }}>Swaps Completed</div>
+                            </div>
+                            <div className="stat-card" style={{ background: 'linear-gradient(135deg, #059669, #047857)', border: 'none' }}>
+                                <div className="stat-card-icon" style={{ background: 'rgba(255,255,255,0.2)', color: 'white' }}>{Icon.dollar}</div>
+                                <div className="stat-card-value" style={{ color: 'white' }}>{formatCurrency(356)}</div>
+                                <div className="stat-card-label" style={{ color: 'rgba(255,255,255,0.85)' }}>Shipping Saved</div>
+                            </div>
+                            <div className="stat-card">
+                                <div className="stat-card-icon" style={{ background: '#eef2ff', color: '#4f46e5' }}>{Icon.target}</div>
+                                <div className="stat-card-value">78%</div>
+                                <div className="stat-card-label">Swap Success Rate</div>
+                            </div>
+                            <div className="stat-card">
+                                <div className="stat-card-icon" style={{ background: '#fef3c7', color: '#d97706' }}>{Icon.trending}</div>
+                                <div className="stat-card-value">2.3 km</div>
+                                <div className="stat-card-label">Avg Swap Distance</div>
+                            </div>
                         </div>
                     </div>
                 )}

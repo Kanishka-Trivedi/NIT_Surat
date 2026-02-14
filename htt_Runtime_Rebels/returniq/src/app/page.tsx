@@ -237,6 +237,47 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ── OpenLeaf Swap Innovation ── */}
+      <section id="swap" style={{ padding: '80px 0', background: 'linear-gradient(135deg, #eef2ff 0%, #f0fdf4 100%)' }}>
+        <div className="container">
+          <div className="section-badge" style={{ background: '#4f46e520', color: '#4f46e5' }}>🌿 CORE INNOVATION</div>
+          <h2 className="section-title">
+            OpenLeaf P2P Swap<br />
+            <span className="gradient-text">Skip Shipping. Swap Locally.</span>
+          </h2>
+          <p className="section-subtitle" style={{ marginBottom: '48px' }}>
+            Instead of shipping returns back, we match customers who want to swap
+            products with nearby peers — saving time, shipping costs, and the planet.
+          </p>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', marginBottom: '40px' }}>
+            {[
+              { icon: '📡', title: 'Smart Matching', desc: 'AI finds swap partners within 5km based on product SKU, size, and trust score. Haversine-based proximity matching.', color: '#4f46e5' },
+              { icon: '🗺️', title: 'Meetup Coordination', desc: 'Suggests safe meetup points. Real-time chat, interactive checklist, and Google Maps deep-link integration.', color: '#059669' },
+              { icon: '🔐', title: '3-Layer Verification', desc: 'GPS proximity check → QR code exchange → AI photo verification. Triple-verified swaps ensure trust and safety.', color: '#7c3aed' },
+              { icon: '🎉', title: 'Instant Rewards', desc: 'Both parties earn store credit upon verified completion. Confetti celebration + sustainability stats.', color: '#d97706' },
+            ].map((f, i) => (
+              <div key={i} style={{
+                padding: '28px', background: 'white', borderRadius: '16px',
+                border: '1px solid #e5e7eb', boxShadow: '0 4px 20px rgba(0,0,0,0.04)',
+                transition: 'all 0.3s',
+              }}>
+                <div style={{ fontSize: '32px', marginBottom: '12px' }}>{f.icon}</div>
+                <h3 style={{ fontSize: '17px', fontWeight: 700, marginBottom: '8px', color: f.color }}>{f.title}</h3>
+                <p style={{ fontSize: '14px', color: '#6b7280', lineHeight: '1.6' }}>{f.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ textAlign: 'center' }}>
+            <a href="/return/options?returnId=demo&product=Classic%20Oxford%20Shirt&variant=Size%20M&price=4499&orderId=ORD-10240"
+              className="btn btn-primary btn-lg btn-glow" style={{ fontSize: '16px' }}>
+              🔄 Try Swap Demo →
+            </a>
+          </div>
+        </div>
+      </section>
+
       {/* ── Impact Section ── */}
       <section id="impact" className="section-dark" style={{ padding: '80px 0' }}>
         <div className="container">

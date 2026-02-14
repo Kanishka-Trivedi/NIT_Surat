@@ -98,9 +98,18 @@ export default function ReturnPage() {
                 return;
             }
 
-            // Store result and navigate to confirmation
+            // Store result and navigate to swap options page
             sessionStorage.setItem('returniq_result', JSON.stringify(data));
-            router.push('/return/confirmation');
+
+            // Route to swap options page (OpenLeaf core feature)
+            const optionsParams = new URLSearchParams({
+                returnId: data.id || '',
+                product: order.product_name,
+                variant: order.variant || 'Size M',
+                price: String(order.product_price),
+                orderId: order.order_id,
+            });
+            router.push(`/return/options?${optionsParams.toString()}`);
         } catch {
             setError('Network error. Please try again.');
             setStep(3);
