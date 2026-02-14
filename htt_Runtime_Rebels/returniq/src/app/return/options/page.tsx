@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { SwapMatch, MeetupPoint } from '@/types';
 import { formatCurrency } from '@/lib/utils';
 import LeafletMap from '@/components/Map';
 
-export default function SwapOptionsPage() {
+function SwapOptionsContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const [matches, setMatches] = useState<SwapMatch[]>([]);
@@ -492,5 +492,13 @@ export default function SwapOptionsPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function SwapOptionsPage() {
+    return (
+        <Suspense fallback={<div className="page-wrapper"><div className="loading-overlay" style={{ flex: 1 }}><div className="spinner spinner-lg"></div></div></div>}>
+            <SwapOptionsContent />
+        </Suspense>
     );
 }
