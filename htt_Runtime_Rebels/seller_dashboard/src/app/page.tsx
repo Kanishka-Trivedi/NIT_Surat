@@ -100,7 +100,7 @@ export default function SellerDashboard() {
                     </div>
                 </header>
 
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-16">
+                <div className="stats-grid gap-6 mb-16" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))' }}>
                     {[
                         { label: 'Revenue Saved', value: formatCurrency(stats.totalRefundSaved), color: 'indigo' },
                         { label: 'Hyperlocal Savings', value: '₹2,92,400', color: 'amber', sub: '88% Pickup reduction' },

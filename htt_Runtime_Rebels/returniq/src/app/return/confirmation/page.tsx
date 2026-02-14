@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import QRCode from 'qrcode';
 import { ReturnRequest } from '@/types';
 import { formatCurrency } from '@/lib/utils';
 
@@ -46,11 +47,28 @@ const RISK_ICONS: Record<string, React.ReactNode> = {
 
 export default function ConfirmationPage() {
     const [result, setResult] = useState<ReturnRequest | null>(null);
+    const [qrCodeUrl, setQrCodeUrl] = useState('');
 
     useEffect(() => {
         const stored = sessionStorage.getItem('returniq_result');
         if (stored) {
-            setResult(JSON.parse(stored));
+            const data = JSON.parse(stored);
+            setResult(data);
+
+            // Generate QR Code with fallback data in params
+            const params = new URLSearchParams({
+                product: data.product_name,
+                price: data.product_price.toString(),
+                reason: data.return_reason,
+                score: data.fraud_score.toString(),
+                level: data.fraud_level,
+                image: data.image_url || '',
+            });
+            const verifyUrl = `${window.location.origin}/verify/${data.id}?${params.toString()}`;
+
+            QRCode.toDataURL(verifyUrl, { width: 200, margin: 2, color: { dark: '#000000', light: '#ffffff' } }, (err, url) => {
+                if (!err) setQrCodeUrl(url);
+            });
         }
     }, []);
 
@@ -95,14 +113,25 @@ export default function ConfirmationPage() {
 
             <div className="container" style={{ maxWidth: '700px', margin: '0 auto', padding: '40px 24px' }}>
                 {/* Success Banner */}
-                <div className="confirmation-card">
+                <div className="confirmation-card" style={{ textAlign: 'center' }}>
                     <div className="confirmation-icon success"><IconCheck /></div>
                     <h1 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '8px' }}>
                         Return Request Submitted
                     </h1>
-                    <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '8px' }}>
-                        Your return request has been analyzed by our AI intelligence system.
+                    <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '24px' }}>
+                        Your return request has been submitted.
                     </p>
+
+                    {/* QR Code Section */}
+                    {qrCodeUrl && (
+                        <div style={{ background: 'white', padding: '20px', borderRadius: '16px', border: '1px dashed #cbd5e1', display: 'inline-block', marginBottom: '20px' }}>
+                            <img src={qrCodeUrl} alt="Return QR Code" style={{ display: 'block', margin: '0 auto' }} />
+                            <div style={{ marginTop: '12px', fontSize: '12px', color: '#64748b', fontWeight: 500 }}>
+                                Show this QR at drop-off for instant verification
+                            </div>
+                        </div>
+                    )}
+
                     <div className="badge badge-info" style={{ fontSize: '14px', padding: '6px 14px' }}>
                         Request ID: {result.id}
                     </div>
