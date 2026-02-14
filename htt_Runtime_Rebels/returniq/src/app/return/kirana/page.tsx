@@ -53,6 +53,39 @@ function KiranaFlowContent() {
     const [notifications, setNotifications] = useState<KiranaNotification[]>([]);
     const [loading, setLoading] = useState(true);
     const [scanProgress, setScanProgress] = useState(0);
+    const [exchangeConfirmed, setExchangeConfirmed] = useState(false);
+
+    // Persist dropoff to localStorage for Dashboard visibility
+    const handleConfirmExchange = () => {
+        setExchangeConfirmed(true);
+        try {
+            const newDropoff = {
+                id: dropoff?.id || `KD-${Date.now()}`,
+                returnId: returnId || `RET-${Date.now()}`,
+                productName: productName,
+                kiranaName: selectedStore?.name || 'Local Store',
+                status: 'completed',
+                aiDecision: 'Exchange',
+                refundSaved: (scanResult as any)?.inspection?.refundSaved || 0,
+                droppedAt: new Date().toISOString(),
+                isNew: true // Highlight in dashboard
+            };
+
+            const existing = JSON.parse(localStorage.getItem('returniq_kirana_dropoffs') || '[]');
+            localStorage.setItem('returniq_kirana_dropoffs', JSON.stringify([newDropoff, ...existing]));
+
+            // Add notification
+            setNotifications(prev => [...prev, {
+                id: `N-${Date.now()}-CONFIRM`,
+                type: 'success',
+                icon: '🎉',
+                title: 'Exchange Confirmed',
+                message: 'Transaction saved. Kirana owner notified.',
+                channel: 'App',
+                timestamp: new Date().toISOString()
+            } as any]);
+        } catch (e) { console.error(e); }
+    };
 
     // Fetch nearby stores
     useEffect(() => {
@@ -440,19 +473,35 @@ function KiranaFlowContent() {
                                 marginBottom: '24px', background: 'linear-gradient(135deg, #f0fdf4, #ecfdf5)',
                                 border: '2px solid #a7f3d0',
                             }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                                    <span style={{ fontSize: '20px' }}>🔄</span>
-                                    <span style={{ fontSize: '16px', fontWeight: 700, color: '#065f46' }}>Instant Swap Available!</span>
-                                </div>
-                                <p style={{ fontSize: '14px', color: '#065f46', marginBottom: '12px' }}>
-                                    {(scanResult as { swap?: { message?: string } | null }).swap?.message}
-                                </p>
-                                <div style={{ fontSize: '13px', fontWeight: 600, color: '#059669', marginBottom: '12px' }}>
-                                    Swap for: {(scanResult as { swap?: { product?: string } | null }).swap?.product}
-                                </div>
-                                <button className="btn btn-primary" style={{ background: '#059669' }}>
-                                    ✅ Confirm Exchange
-                                </button>
+                                {exchangeConfirmed ? (
+                                    <div style={{ textAlign: 'center', padding: '12px' }}>
+                                        <div style={{ fontSize: '48px', marginBottom: '8px' }}>🎉</div>
+                                        <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#059669', marginBottom: '4px' }}>Exchange Confirmed!</h3>
+                                        <p style={{ fontSize: '14px', color: '#065f46' }}>
+                                            Hand over your item. The store owner will give you the <strong>{(scanResult as { swap?: { product?: string } | null }).swap?.product}</strong> immediately.
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                                            <span style={{ fontSize: '20px' }}>🔄</span>
+                                            <span style={{ fontSize: '16px', fontWeight: 700, color: '#065f46' }}>Instant Swap Available!</span>
+                                        </div>
+                                        <p style={{ fontSize: '14px', color: '#065f46', marginBottom: '12px' }}>
+                                            {(scanResult as { swap?: { message?: string } | null }).swap?.message}
+                                        </p>
+                                        <div style={{ fontSize: '13px', fontWeight: 600, color: '#059669', marginBottom: '12px' }}>
+                                            Swap for: {(scanResult as { swap?: { product?: string } | null }).swap?.product}
+                                        </div>
+                                        <button
+                                            className="btn btn-primary"
+                                            style={{ background: '#059669' }}
+                                            onClick={handleConfirmExchange}
+                                        >
+                                            ✅ Confirm Exchange
+                                        </button>
+                                    </>
+                                )}
                             </div>
                         )}
 

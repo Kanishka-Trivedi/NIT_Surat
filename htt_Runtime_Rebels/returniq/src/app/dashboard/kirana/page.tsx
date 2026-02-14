@@ -25,6 +25,7 @@ const STATUS_BADGES: Record<string, { label: string; color: string; bg: string }
 export default function KiranaDashboardPage() {
     const router = useRouter();
     const [stores, setStores] = useState<KiranaStore[]>([]);
+    const [localDropoffs, setLocalDropoffs] = useState<any[]>([]); // initialized empty, filled in useEffect
     const [loading, setLoading] = useState(true);
     const [session, setSession] = useState<BrandSession | null>(null);
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -45,7 +46,6 @@ export default function KiranaDashboardPage() {
             const data = await res.json();
             setStores(data.stores || []);
         } catch { /* ignore */ }
-        setLoading(false);
     }, []);
 
     useEffect(() => {
@@ -53,6 +53,17 @@ export default function KiranaDashboardPage() {
         if (!stored) { router.push('/dashboard/login'); return; }
         setSession(JSON.parse(stored));
         fetchStores();
+
+        // Load local dropoffs and merge with mock data
+        const localDropoffs = JSON.parse(localStorage.getItem('returniq_kirana_dropoffs') || '[]');
+        if (localDropoffs.length > 0) {
+            // Merge local drops with mock drops, prioritizing local ones
+            const merged = [...localDropoffs, ...MOCK_DROPOFFS].slice(0, 10); // Keep most recent 10
+            setLocalDropoffs(merged);
+        } else {
+            setLocalDropoffs(MOCK_DROPOFFS);
+        }
+        setLoading(false);
     }, [router, fetchStores]);
 
     if (loading || !session) {
@@ -158,7 +169,7 @@ export default function KiranaDashboardPage() {
                     <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #e5e7eb', overflow: 'hidden' }}>
                         <div style={{ padding: '20px 24px', borderBottom: '1px solid #f3f4f6', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <h2 style={{ fontSize: '16px', fontWeight: 700, color: '#111827' }}>Recent Kirana Drops</h2>
-                            <span style={{ fontSize: '12px', color: '#6b7280' }}>{MOCK_DROPOFFS.length} drops</span>
+                            <span style={{ fontSize: '12px', color: '#6b7280' }}>{localDropoffs.length} drops</span>
                         </div>
                         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                             <thead>
@@ -172,11 +183,20 @@ export default function KiranaDashboardPage() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {MOCK_DROPOFFS.map((d, i) => {
+                                {localDropoffs.map((d, i) => {
                                     const badge = STATUS_BADGES[d.status] || STATUS_BADGES.pending;
+                                    const isNew = d.isNew;
+
                                     return (
-                                        <tr key={d.id} style={{ borderBottom: i < MOCK_DROPOFFS.length - 1 ? '1px solid #f3f4f6' : 'none' }}>
-                                            <td style={{ padding: '14px 16px', fontSize: '13px', fontFamily: 'monospace', fontWeight: 600 }}>{d.id}</td>
+                                        <tr key={d.id} style={{
+                                            borderBottom: i < localDropoffs.length - 1 ? '1px solid #f3f4f6' : 'none',
+                                            background: isNew ? '#f0fdf4' : 'transparent',
+                                            transition: 'background 0.5s'
+                                        }}>
+                                            <td style={{ padding: '14px 16px', fontSize: '13px', fontFamily: 'monospace', fontWeight: 600 }}>
+                                                {d.id}
+                                                {isNew && <span style={{ marginLeft: '6px', fontSize: '9px', background: '#16a34a', color: 'white', padding: '1px 4px', borderRadius: '4px' }}>NEW</span>}
+                                            </td>
                                             <td style={{ padding: '14px 16px', fontSize: '13px', fontWeight: 500 }}>{d.productName}</td>
                                             <td style={{ padding: '14px 16px', fontSize: '12px', color: '#6b7280' }}>{d.kiranaName}</td>
                                             <td style={{ padding: '14px 16px' }}>
