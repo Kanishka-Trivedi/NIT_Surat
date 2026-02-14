@@ -314,3 +314,68 @@ export interface SwapDashboardStats extends DashboardStats {
     avgSwapDistance: number;
     totalCreditsAwarded: number;
 }
+
+// ─── Hyperlocal Kirana Return Network Types ──────────────────────────
+
+export interface KiranaStore {
+    id: string;
+    name: string;
+    owner_name: string;
+    address: string;
+    lat: number;
+    lng: number;
+    rating: number;           // 1-5
+    total_reviews: number;
+    phone: string;
+    accepts_returns: boolean;
+    distance_km?: number;     // calculated at runtime
+    operating_hours: string;  // e.g. "9 AM – 9 PM"
+    verified: boolean;
+}
+
+export type KiranaDropoffStatus =
+    | 'pending'          // QR generated, waiting for drop
+    | 'dropped'          // scanned at kirana
+    | 'inspecting'       // AI analysis running
+    | 'decided'          // AI decision made
+    | 'pickup_scheduled' // courier pickup scheduled
+    | 'completed';       // fully processed
+
+export interface KiranaDropoff {
+    id: string;
+    return_id: string;
+    kirana_id: string;
+    kirana_name: string;
+    qr_code: string;          // base64 QR image
+    status: KiranaDropoffStatus;
+    ai_decision?: string;     // 'Refund' | 'Exchange' | 'Resale'
+    ai_confidence?: number;
+    refund_saved?: number;
+    swap_available?: boolean;
+    swap_product?: string;
+    created_at: string;
+    dropped_at?: string;
+    decided_at?: string;
+    pickup_at?: string;
+    completed_at?: string;
+}
+
+export interface KiranaNotification {
+    id: string;
+    type: 'customer_drop' | 'brand_decision' | 'pickup_scheduled';
+    icon: string;
+    title: string;
+    message: string;
+    channel: 'WhatsApp' | 'SMS' | 'Email';
+    timestamp: string;
+}
+
+export interface KiranaDashboardStats {
+    totalKiranaDrops: number;
+    kiranaPercentage: number;  // % of total returns via kirana
+    avgRefundSavedPerDrop: number;
+    fastestTurnaround: string; // e.g. "8 min"
+    co2SavedKg: number;
+    activeStores: number;
+    exchangesViaKirana: number;
+}

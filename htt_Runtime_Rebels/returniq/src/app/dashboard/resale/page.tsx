@@ -174,56 +174,55 @@ export default function ResaleDashboardPage() {
                         No items in resale pipeline yet.
                     </div>
                 )}
+            </div>
 
+            {/* Mock Listing Preview Modal */}
+            {selectedItem && (
+                <div className="modal-overlay" onClick={() => setSelectedItem(null)}>
+                    <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '800px', padding: 0, overflow: 'hidden' }}>
+                        <div style={{ background: '#111827', padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'white' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <div style={{ fontWeight: 700 }}>UrbanStyle <span style={{ fontWeight: 400, opacity: 0.8 }}>Pre-Loved</span></div>
+                                <div style={{ fontSize: '11px', background: 'white', color: 'black', padding: '2px 6px', borderRadius: '4px', fontWeight: 600 }}>OFFICIAL RESALE</div>
+                            </div>
+                            <button onClick={() => setSelectedItem(null)} style={{ color: 'white', background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer' }}>×</button>
+                        </div>
 
-                {/* Mock Listing Preview Modal */}
-                {selectedItem && (
-                    <div className="modal-overlay" onClick={() => setSelectedItem(null)}>
-                        <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '800px', padding: 0, overflow: 'hidden' }}>
-                            <div style={{ background: '#111827', padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'white' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <div style={{ fontWeight: 700 }}>UrbanStyle <span style={{ fontWeight: 400, opacity: 0.8 }}>Pre-Loved</span></div>
-                                    <div style={{ fontSize: '11px', background: 'white', color: 'black', padding: '2px 6px', borderRadius: '4px', fontWeight: 600 }}>OFFICIAL RESALE</div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', minHeight: '400px' }}>
+                            {/* Product Image Side */}
+                            <div style={{ background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px' }}>
+                                <div style={{ width: '100%', height: '300px', background: 'white', borderRadius: '8px', boxShadow: '0 10px 30px rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '48px', color: '#e5e7eb' }}>
+                                    📦
                                 </div>
-                                <button onClick={() => setSelectedItem(null)} style={{ color: 'white', background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer' }}>×</button>
                             </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', minHeight: '400px' }}>
-                                {/* Product Image Side */}
-                                <div style={{ background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px' }}>
-                                    <div style={{ width: '100%', height: '300px', background: 'white', borderRadius: '8px', boxShadow: '0 10px 30px rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '48px', color: '#e5e7eb' }}>
-                                        📦
+                            {/* Product Info Side */}
+                            <div style={{ padding: '32px' }}>
+                                <div style={{ fontSize: '12px', fontWeight: 600, color: '#059669', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                                    Verified {selectedItem.condition} Condition
+                                </div>
+                                <h2 style={{ fontSize: '24px', fontWeight: 800, marginBottom: '8px', lineHeight: '1.2' }}>{selectedItem.product_name}</h2>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
+                                    <div style={{ fontSize: '28px', fontWeight: 700, color: '#111827' }}>{formatCurrency(selectedItem.listing_price)}</div>
+                                    <div style={{ fontSize: '16px', color: '#9ca3af', textDecoration: 'line-through' }}>{formatCurrency(selectedItem.original_price)}</div>
+                                    <div style={{ padding: '4px 8px', background: '#ecfdf5', color: '#059669', borderRadius: '4px', fontSize: '12px', fontWeight: 700 }}>
+                                        Save {Math.round((1 - selectedItem.listing_price / selectedItem.original_price) * 100)}%
                                     </div>
                                 </div>
 
-                                {/* Product Info Side */}
-                                <div style={{ padding: '32px' }}>
-                                    <div style={{ fontSize: '12px', fontWeight: 600, color: '#059669', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                                        Verified {selectedItem.condition} Condition
+                                <div style={{ padding: '16px', background: '#f9fafb', borderRadius: '8px', marginBottom: '24px', border: '1px solid #e5e7eb' }}>
+                                    <div style={{ fontSize: '13px', fontWeight: 600, marginBottom: '8px' }}>AutoInspect™ Verification</div>
+                                    <div style={{ display: 'flex', gap: '8px', fontSize: '12px', color: '#4b5563' }}>
+                                        <span>✅ Authenticity Verified</span>
+                                        <span>✅ Cleaned &amp; Sanitized</span>
                                     </div>
-                                    <h2 style={{ fontSize: '24px', fontWeight: 800, marginBottom: '8px', lineHeight: '1.2' }}>{selectedItem.product_name}</h2>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-                                        <div style={{ fontSize: '28px', fontWeight: 700, color: '#111827' }}>{formatCurrency(selectedItem.listing_price)}</div>
-                                        <div style={{ fontSize: '16px', color: '#9ca3af', textDecoration: 'line-through' }}>{formatCurrency(selectedItem.original_price)}</div>
-                                        <div style={{ padding: '4px 8px', background: '#ecfdf5', color: '#059669', borderRadius: '4px', fontSize: '12px', fontWeight: 700 }}>
-                                            Save {Math.round((1 - selectedItem.listing_price / selectedItem.original_price) * 100)}%
-                                        </div>
-                                    </div>
+                                </div>
 
-                                    <div style={{ padding: '16px', background: '#f9fafb', borderRadius: '8px', marginBottom: '24px', border: '1px solid #e5e7eb' }}>
-                                        <div style={{ fontSize: '13px', fontWeight: 600, marginBottom: '8px' }}>AutoInspect™ Verification</div>
-                                        <div style={{ display: 'flex', gap: '8px', fontSize: '12px', color: '#4b5563' }}>
-                                            <span>✅ Authenticity Verified</span>
-                                            <span>✅ Cleaned & Sanitized</span>
-                                        </div>
-                                    </div>
-
-                                    <button className="btn btn-primary btn-lg" style={{ width: '100%', marginBottom: '12px' }}>
-                                        Add to Cart
-                                    </button>
-                                    <div style={{ textAlign: 'center', fontSize: '12px', color: '#6b7280' }}>
-                                        Free shipping & 30-day returns
-                                    </div>
+                                <button className="btn btn-primary btn-lg" style={{ width: '100%', marginBottom: '12px' }}>
+                                    Add to Cart
+                                </button>
+                                <div style={{ textAlign: 'center', fontSize: '12px', color: '#6b7280' }}>
+                                    Free shipping &amp; 30-day returns
                                 </div>
                             </div>
                         </div>
@@ -234,3 +233,4 @@ export default function ResaleDashboardPage() {
         </div>
     );
 }
+

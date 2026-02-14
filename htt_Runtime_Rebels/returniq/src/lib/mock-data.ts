@@ -1,4 +1,51 @@
-import { Order, ReturnRequest, Brand, BrandUser, BrandSession, DashboardStats, MonthlyData, ReasonBreakdown, AnalyticsData, SocialProofData } from '@/types';
+import { Order, ReturnRequest, Brand, BrandUser, BrandSession, DashboardStats, MonthlyData, ReasonBreakdown, AnalyticsData, SocialProofData, KiranaStore } from '@/types';
+
+// ─── Mock Kirana Partner Stores (Surat area) ──────────────────────────
+
+export const MOCK_KIRANA_STORES: KiranaStore[] = [
+    {
+        id: 'KS-001', name: 'Sharma General Store', owner_name: 'Rajesh Sharma',
+        address: 'Shop 14, Athwa Gate, Surat 395001',
+        lat: 21.1860, lng: 72.8010, rating: 4.6, total_reviews: 234,
+        phone: '+91 98765 43210', accepts_returns: true,
+        operating_hours: '8 AM – 10 PM', verified: true,
+    },
+    {
+        id: 'KS-002', name: 'Patel Kirana & More', owner_name: 'Nilesh Patel',
+        address: '22, Adajan Patiya, Surat 395009',
+        lat: 21.1950, lng: 72.7920, rating: 4.4, total_reviews: 187,
+        phone: '+91 98765 43211', accepts_returns: true,
+        operating_hours: '9 AM – 9 PM', verified: true,
+    },
+    {
+        id: 'KS-003', name: 'New India Provision', owner_name: 'Amit Desai',
+        address: 'B-12 Vesu Complex, VIP Road, Surat 395007',
+        lat: 21.1580, lng: 72.7710, rating: 4.8, total_reviews: 312,
+        phone: '+91 98765 43212', accepts_returns: true,
+        operating_hours: '7 AM – 11 PM', verified: true,
+    },
+    {
+        id: 'KS-004', name: 'Krishna Supermart', owner_name: 'Suresh Joshi',
+        address: 'Near SVNIT Gate, Ichchhanath, Surat 395007',
+        lat: 21.1630, lng: 72.7830, rating: 4.3, total_reviews: 145,
+        phone: '+91 98765 43213', accepts_returns: true,
+        operating_hours: '8 AM – 9 PM', verified: true,
+    },
+    {
+        id: 'KS-005', name: 'Laxmi Daily Needs', owner_name: 'Meena Agarwal',
+        address: 'Ring Road Circle, Althan, Surat 395017',
+        lat: 21.1720, lng: 72.7960, rating: 4.5, total_reviews: 198,
+        phone: '+91 98765 43214', accepts_returns: true,
+        operating_hours: '6 AM – 10 PM', verified: true,
+    },
+    {
+        id: 'KS-006', name: 'Gupta Store & Courier Point', owner_name: 'Rakesh Gupta',
+        address: '45, Pal-Bhatha Road, Surat 395009',
+        lat: 21.1810, lng: 72.7750, rating: 4.7, total_reviews: 267,
+        phone: '+91 98765 43215', accepts_returns: true,
+        operating_hours: '9 AM – 10 PM', verified: true,
+    },
+];
 
 // ─── Multi-Brand Workspaces ──────────────────────────────────────────
 

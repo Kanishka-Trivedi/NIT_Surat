@@ -210,6 +210,7 @@ export default function DashboardPage() {
                 <nav className="sidebar-nav">
                     {[
                         { href: '/dashboard', icon: Icon.grid, label: 'Overview', active: true },
+                        { href: '/dashboard/kirana', icon: Icon.box, label: 'Kirana Network', active: false },
                         { href: '/dashboard/analytics', icon: Icon.chart, label: 'Analytics', active: false },
                         { href: '/dashboard/resale', icon: Icon.refresh, label: 'Resale Pipeline', active: false },
                         { href: '/return/options?returnId=demo&product=Classic%20Oxford%20Shirt&variant=Size%20M&price=4499&orderId=ORD-10240', icon: Icon.link, label: 'Swaps Demo', active: false },
@@ -312,6 +313,40 @@ export default function DashboardPage() {
                         </div>
                     </div>
                 )}
+
+                {/* ─── Phase 8: Kirana Network Metrics ─── */}
+                <div style={{ marginBottom: '24px' }}>
+                    <h3 style={{ fontSize: '14px', fontWeight: 700, color: '#374151', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '16px' }}>🏪</span> Kirana Return Network
+                        <a href="/dashboard/kirana" style={{ marginLeft: 'auto', fontSize: '12px', color: accent, textDecoration: 'none', fontWeight: 600 }}>View All →</a>
+                    </h3>
+                    <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
+                        <div className="stat-card" style={{ border: '2px solid #f59e0b20' }}>
+                            <div className="stat-card-icon" style={{ background: '#fffbeb', color: '#d97706' }}>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
+                            </div>
+                            <div className="stat-card-value" style={{ color: '#d97706' }}>34%</div>
+                            <div className="stat-card-label">Returns via Kirana</div>
+                        </div>
+                        <div className="stat-card" style={{ border: '2px solid #05966920' }}>
+                            <div className="stat-card-icon" style={{ background: '#f0fdf4', color: '#059669' }}>{Icon.dollar}</div>
+                            <div className="stat-card-value" style={{ color: '#059669' }}>₹3,124</div>
+                            <div className="stat-card-label">Avg Saved / Drop</div>
+                        </div>
+                        <div className="stat-card" style={{ border: '2px solid #4f46e520' }}>
+                            <div className="stat-card-icon" style={{ background: '#eef2ff', color: '#4f46e5' }}>{Icon.zap}</div>
+                            <div className="stat-card-value" style={{ color: '#4f46e5' }}>8 min</div>
+                            <div className="stat-card-label">Fastest Turnaround</div>
+                        </div>
+                        <div className="stat-card" style={{ background: 'linear-gradient(135deg, #059669, #16a34a)', border: 'none' }}>
+                            <div className="stat-card-icon" style={{ background: 'rgba(255,255,255,0.2)', color: 'white' }}>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" /><path d="M7 12l3-6 4 12 3-6" /></svg>
+                            </div>
+                            <div className="stat-card-value" style={{ color: 'white' }}>28.5 kg</div>
+                            <div className="stat-card-label" style={{ color: 'rgba(255,255,255,0.8)' }}>CO₂ Saved</div>
+                        </div>
+                    </div>
+                </div>
 
                 {/* ─── Phase 7: Resale & Sustainability Metrics ─── */}
                 {stats && (stats.resaleRevenue > 0 || stats.co2Avoided > 0) && (

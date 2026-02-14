@@ -416,6 +416,73 @@ function SwapOptionsContent() {
                         </div>
                     </div>
 
+                    {/* ── OPTION: DROP AT KIRANA ── */}
+                    <div style={{
+                        opacity: 1,
+                        transform: 'translateY(0)',
+                        transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+                    }}>
+                        <div className="card" style={{
+                            padding: '0', overflow: 'hidden',
+                            border: '2px solid #f59e0b',
+                            boxShadow: '0 0 20px rgba(245, 158, 11, 0.12)',
+                        }}>
+                            <div style={{
+                                padding: '6px 16px', background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                                display: 'flex', alignItems: 'center', gap: '8px',
+                            }}>
+                                <span style={{ fontSize: '14px' }}>🏪</span>
+                                <span style={{ fontSize: '12px', fontWeight: 700, color: 'white', letterSpacing: '0.5px' }}>
+                                    NEW — KIRANA NETWORK
+                                </span>
+                            </div>
+                            <div style={{ padding: '20px 24px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                                    <span style={{ fontSize: '28px' }}>🏪</span>
+                                    <div>
+                                        <div style={{ fontSize: '16px', fontWeight: 700 }}>DROP AT NEARBY KIRANA</div>
+                                        <div style={{ fontSize: '13px', color: '#6b7280' }}>Instant AI inspection • No courier wait</div>
+                                    </div>
+                                </div>
+                                <div style={{
+                                    display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px',
+                                    marginBottom: '16px',
+                                }}>
+                                    <div style={{ padding: '10px', background: '#fffbeb', borderRadius: '8px', textAlign: 'center' }}>
+                                        <div style={{ fontSize: '18px', fontWeight: 800, color: '#d97706' }}>6</div>
+                                        <div style={{ fontSize: '11px', color: '#92400e' }}>Stores nearby</div>
+                                    </div>
+                                    <div style={{ padding: '10px', background: '#f0fdf4', borderRadius: '8px', textAlign: 'center' }}>
+                                        <div style={{ fontSize: '18px', fontWeight: 800, color: '#059669' }}>&lt;30s</div>
+                                        <div style={{ fontSize: '11px', color: '#065f46' }}>AI Decision</div>
+                                    </div>
+                                    <div style={{ padding: '10px', background: '#eef2ff', borderRadius: '8px', textAlign: 'center' }}>
+                                        <div style={{ fontSize: '18px', fontWeight: 800, color: '#4f46e5' }}>0.8 km</div>
+                                        <div style={{ fontSize: '11px', color: '#3730a3' }}>Nearest store</div>
+                                    </div>
+                                </div>
+                                <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '16px' }}>
+                                    <div>🔹 Walk to store, show QR, done in 2 minutes</div>
+                                    <div>🔹 AI inspects instantly — no 24hr wait</div>
+                                    <div>🔹 Exchange at store if available</div>
+                                </div>
+                                <button
+                                    className="btn btn-primary btn-lg"
+                                    style={{ width: '100%', background: 'linear-gradient(135deg, #f59e0b, #d97706)' }}
+                                    onClick={() => {
+                                        const params = new URLSearchParams({
+                                            returnId, product: productName, price: String(price),
+                                            orderId, reason: '', email: '',
+                                        });
+                                        router.push(`/return/kirana?${params.toString()}`);
+                                    }}
+                                >
+                                    🏪 Find Nearby Kirana
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                     {/* ── OPTION 3: STORE CREDIT / REFUND ── */}
                     <div style={{
                         opacity: revealedCards.includes(cardIndex.credit) ? 1 : 0,
