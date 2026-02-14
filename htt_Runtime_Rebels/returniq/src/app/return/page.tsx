@@ -41,23 +41,75 @@ export default function ReturnPage() {
             .catch(() => { });
     }, [router]);
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const [videoFrames, setVideoFrames] = useState<string[]>([]);
+    const [extractingFrames, setExtractingFrames] = useState(false);
+
+    // Helper to extract frames from video
+    const extractFramesFromVideo = async (videoFile: File): Promise<string[]> => {
+        return new Promise((resolve) => {
+            const video = document.createElement('video');
+            video.preload = 'metadata';
+            video.src = URL.createObjectURL(videoFile);
+            video.muted = true;
+            video.playsInline = true;
+
+            const frames: string[] = [];
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            video.onloadedmetadata = async () => {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                const duration = video.duration;
+
+                // Capture at 10%, 50%, 90%
+                const timePoints = [duration * 0.1, duration * 0.5, duration * 0.9];
+
+                for (const time of timePoints) {
+                    video.currentTime = time;
+                    await new Promise(r => { video.onseeked = () => r(null); });
+                    if (ctx) {
+                        ctx.drawImage(video, 0, 0);
+                        frames.push(canvas.toDataURL('image/jpeg', 0.7).split(',')[1]);
+                    }
+                }
+                URL.revokeObjectURL(video.src);
+                resolve(frames);
+            };
+        });
+    };
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
             setSelectedFile(file);
             const url = URL.createObjectURL(file);
             setPreviewUrl(url);
-            setIsVideo(file.type.startsWith('video/'));
+            const isVid = file.type.startsWith('video/');
+            setIsVideo(isVid);
 
-            // Convert to base64
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                const base64String = reader.result as string;
-                // Remove data URL prefix (e.g. "data:image/jpeg;base64,")
-                const base64Data = base64String.split(',')[1];
-                setBase64Image(base64Data);
-            };
-            reader.readAsDataURL(file);
+            if (isVid) {
+                setExtractingFrames(true);
+                try {
+                    const frames = await extractFramesFromVideo(file);
+                    setVideoFrames(frames);
+                    // Use middle frame as the "base64Image" fallback/thumbnail
+                    if (frames.length > 0) setBase64Image(frames[1]);
+                } catch (e) {
+                    console.error("Frame extraction failed", e);
+                } finally {
+                    setExtractingFrames(false);
+                }
+            } else {
+                // Convert image to base64
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    const base64String = reader.result as string;
+                    setBase64Image(base64String.split(',')[1]);
+                };
+                reader.readAsDataURL(file);
+                setVideoFrames([]);
+            }
         }
     };
 
@@ -89,6 +141,7 @@ export default function ReturnPage() {
                     image_url: selectedFile ? 'uploaded' : null,
                     image_base64: base64Image,
                     is_video: isVideo,
+                    video_frames: videoFrames,
                 }),
             });
 
@@ -347,6 +400,7 @@ export default function ReturnPage() {
                                     <div className="upload-zone-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" /><circle cx="12" cy="13" r="4" /></svg></div>
                                     <div className="upload-zone-text">Click to upload photo or video</div>
                                     <div className="upload-zone-hint">JPG, PNG, MP4 up to 50MB</div>
+                                    {extractingFrames && <div style={{ marginTop: '8px', color: '#4f46e5', fontWeight: 600, fontSize: '12px' }}>Processing video frames...</div>}
                                 </div>
                             )}
                         </div>
