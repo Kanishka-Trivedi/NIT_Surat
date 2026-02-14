@@ -191,7 +191,7 @@ export default function HomePage() {
             {[
               { icon: 'RF', title: 'Return Frequency', desc: 'Tracks customer return history. Serial returners get flagged with escalating risk scores.', color: '#4f46e5' },
               { icon: 'NL', title: 'NLP Sentiment', desc: 'Analyzes return reason text for hostile tone, threats, urgency pressure, and vague claims.', color: '#7c3aed' },
-              { icon: 'IC', title: 'Image Classification', desc: 'AI classifies uploaded product images as damaged, used, or correct condition.', color: '#0891b2' },
+              { icon: 'VI', title: 'Visual Intelligence', desc: 'AI analyzes uploaded photos AND videos to detect damage, wear, and verify functionality.', color: '#0891b2' },
               { icon: 'MD', title: 'Mismatch Detection', desc: 'Cross-references stated reason with image condition — catches "claims damaged, looks new" fraud.', color: '#dc2626' },
               { icon: 'EI', title: 'Exchange Intelligence', desc: 'Suggests size swaps, product alternatives, or store credit to retain revenue.', color: '#059669' },
               { icon: 'LP', title: 'Loss Prevention', desc: 'Calculates exact ₹ saved per case by recommending exchanges over refunds.', color: '#d97706' },
@@ -303,8 +303,8 @@ export default function HomePage() {
               <div className="impact-bar" style={{ background: '#a78bfa' }}></div>
             </div>
             <div className="impact-card">
-              <div className="impact-value" style={{ color: '#fbbf24' }}>50%</div>
-              <div className="impact-label">Exchange conversion rate</div>
+              <div className="impact-value" style={{ color: '#fbbf24' }}>₹4.2L+</div>
+              <div className="impact-label">Resale revenue recovered</div>
               <div className="impact-bar" style={{ background: '#fbbf24' }}></div>
             </div>
           </div>

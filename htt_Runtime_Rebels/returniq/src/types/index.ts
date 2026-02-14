@@ -37,6 +37,9 @@ export interface ReturnRequest {
     exchange_suggestion: ExchangeSuggestion | null;
     refund_loss_prevented: number;
     risk_factors: RiskFactor[];
+    // ─── Phase 7 Extensions ────────────────────────────────
+    resale_item?: ResaleItem;
+    video_url?: string; // Optional video upload
 }
 
 export interface RiskFactor {
@@ -67,6 +70,7 @@ export interface AIAnalysisResult {
     exchangeSuggestion: ExchangeSuggestion | null;
     refundLossPrevented: number;
     riskFactors: RiskFactor[];
+    resaleItem?: ResaleItem;
 }
 
 export interface SocialProofData {
@@ -75,6 +79,37 @@ export interface SocialProofData {
     exchangeRate: number;
     satisfactionRate: number;
     avgSavings: number;
+}
+
+// ─── Phase 7 New Interfaces ──────────────────────────────────────────
+
+export interface ResaleItem {
+    id: string;
+    return_id: string;
+    product_name: string;
+    original_price: number;
+    condition: 'Like New' | 'Good' | 'Fair' | 'Damaged';
+    listing_price: number;
+    recovery_percentage: number;
+    listing_status: 'pending' | 'listed' | 'sold';
+    marketplace: 'Brand Open-Box' | 'Secondary Market';
+    created_at: string;
+}
+
+export interface LossPrediction {
+    order_id: string;
+    customer_email: string;
+    predicted_loss: number;
+    risk_score: number; // 0-100
+    risk_reason: string;
+    preventive_action: string; // e.g., "Send size guide"
+    status: 'active' | 'resolved';
+}
+
+export interface SustainabilityMetrics {
+    items_diverted: number;
+    co2_avoided_kg: number;
+    revenue_recovered: number;
 }
 
 export interface DashboardStats {
@@ -90,6 +125,11 @@ export interface DashboardStats {
     avgConfidence: number;
     exchangeSavingsRate: number;
     socialProofUplift: number;
+    // Phase 7 Extended Metrics
+    resaleRevenue: number;
+    itemsDiverted: number;
+    co2Avoided: number;
+    fraudDetectedCount: number;
 }
 
 

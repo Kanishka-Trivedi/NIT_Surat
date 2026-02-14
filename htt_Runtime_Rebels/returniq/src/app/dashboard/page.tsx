@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { ReturnRequest, DashboardStats, BrandSession } from '@/types';
+import { ReturnRequest, DashboardStats, BrandSession, LossPrediction } from '@/types';
 import { formatCurrency, formatDate } from '@/lib/utils';
 
 /* ── Inline SVG icon components ── */
@@ -58,13 +58,21 @@ export default function DashboardPage() {
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
     const [showTour, setShowTour] = useState(false);
     const [tourStep, setTourStep] = useState(0);
+    const [predictions, setPredictions] = useState<LossPrediction[]>([]);
 
     const fetchData = useCallback(async (brandId: string) => {
         try {
-            const res = await fetch(`/api/returns?brandId=${brandId}`);
-            const data = await res.json();
-            setReturns(data.returns);
-            setStats(data.stats);
+            const [resReturns, resPred] = await Promise.all([
+                fetch(`/api/returns?brandId=${brandId}`),
+                fetch(`/api/predictions?brandId=${brandId}`)
+            ]);
+
+            const dataReturns = await resReturns.json();
+            const dataPred = await resPred.json();
+
+            setReturns(dataReturns.returns);
+            setStats(dataReturns.stats);
+            setPredictions(dataPred.predictions || []);
         } catch (err) { console.error('Fetch failed:', err); }
         finally { setLoading(false); }
     }, []);
@@ -201,9 +209,10 @@ export default function DashboardPage() {
 
                 <nav className="sidebar-nav">
                     {[
-                        { href: '/dashboard', icon: Icon.grid, label: 'Dashboard', active: true },
+                        { href: '/dashboard', icon: Icon.grid, label: 'Overview', active: true },
                         { href: '/dashboard/analytics', icon: Icon.chart, label: 'Analytics', active: false },
-                        { href: '/return/options?returnId=demo&product=Classic%20Oxford%20Shirt&variant=Size%20M&price=4499&orderId=ORD-10240', icon: Icon.refresh, label: 'Swaps Demo', active: false },
+                        { href: '/dashboard/resale', icon: Icon.refresh, label: 'Resale Pipeline', active: false },
+                        { href: '/return/options?returnId=demo&product=Classic%20Oxford%20Shirt&variant=Size%20M&price=4499&orderId=ORD-10240', icon: Icon.link, label: 'Swaps Demo', active: false },
                         ...(isAdmin ? [{ href: '/dashboard/settings', icon: Icon.settings, label: 'Settings', active: false }] : []),
                     ].map(link => (
                         <a key={link.label} href={link.href} className={`sidebar-link ${link.active ? 'active' : ''}`}
@@ -300,6 +309,67 @@ export default function DashboardPage() {
                             <div className="stat-card-icon" style={{ background: 'rgba(255,255,255,0.2)', color: 'white' }}>{Icon.handshake}</div>
                             <div className="stat-card-value" style={{ color: 'white' }}>+{stats.socialProofUplift}%</div>
                             <div className="stat-card-label" style={{ color: 'rgba(255,255,255,0.85)' }}>Exchange Uplift from Social Proof</div>
+                        </div>
+                    </div>
+                )}
+
+                {/* ─── Phase 7: Resale & Sustainability Metrics ─── */}
+                {stats && (stats.resaleRevenue > 0 || stats.co2Avoided > 0) && (
+                    <div style={{ marginBottom: '24px' }}>
+                        <h3 style={{ fontSize: '14px', fontWeight: 700, color: '#374151', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span style={{ fontSize: '16px' }}>♻️</span> Circular Economy Impact
+                        </h3>
+                        <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
+                            <div className="stat-card" style={{ background: 'linear-gradient(135deg, #059669, #10b981)', border: 'none' }}>
+                                <div className="stat-card-icon" style={{ background: 'rgba(255,255,255,0.2)', color: 'white' }}>{Icon.dollar}</div>
+                                <div className="stat-card-value" style={{ color: 'white' }}>{formatCurrency(stats.resaleRevenue)}</div>
+                                <div className="stat-card-label" style={{ color: 'rgba(255,255,255,0.85)' }}>Resale Revenue Recovered</div>
+                            </div>
+                            <div className="stat-card">
+                                <div className="stat-card-icon" style={{ background: '#ecfdf5', color: '#059669' }}>{Icon.box}</div>
+                                <div className="stat-card-value">{stats.itemsDiverted}</div>
+                                <div className="stat-card-label">Items Diverted from Landfill</div>
+                            </div>
+                            <div className="stat-card">
+                                <div className="stat-card-icon" style={{ background: '#ecfdf5', color: '#059669' }}>{Icon.grid}</div>
+                                <div className="stat-card-value">{stats.co2Avoided} kg</div>
+                                <div className="stat-card-label">CO₂ Emissions Avoided</div>
+                            </div>
+                            <div className="stat-card" style={{ cursor: 'pointer', border: `1px dashed ${accent}`, background: '#f9fafb' }} onClick={() => router.push('/dashboard/resale')}>
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', gap: '8px' }}>
+                                    <span style={{ fontSize: '24px' }}>→</span>
+                                    <span style={{ fontSize: '13px', fontWeight: 600, color: accent }}>View Resale Pipeline</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* ─── Phase 7: Future Loss Predictions ─── */}
+                {predictions.length > 0 && (
+                    <div style={{ marginBottom: '24px', background: '#fff1f2', border: '1px solid #fecdd3', borderRadius: '12px', padding: '16px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                            <h3 style={{ fontSize: '15px', fontWeight: 700, color: '#9f1239', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                {Icon.alert} High-Risk Order Alerts ({predictions.length})
+                            </h3>
+                            <button className="btn btn-sm btn-outline" style={{ borderColor: '#fecdd3', color: '#9f1239' }}>View All</button>
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
+                            {predictions.map((pred, i) => (
+                                <div key={i} style={{ background: 'white', padding: '16px', borderRadius: '8px', border: '1px solid #fecdd3' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                        <span style={{ fontSize: '13px', fontWeight: 600 }}>{pred.order_id}</span>
+                                        <span className="badge badge-danger">Risk: {pred.risk_score}/100</span>
+                                    </div>
+                                    <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '8px' }}>{pred.risk_reason}</div>
+                                    <div style={{ padding: '8px', background: '#fff1f2', borderRadius: '6px', fontSize: '12px', color: '#9f1239' }}>
+                                        <strong>⚠️ Potential Loss:</strong> {formatCurrency(pred.predicted_loss)}
+                                    </div>
+                                    <div style={{ marginTop: '8px', fontSize: '12px', fontWeight: 600, color: accent }}>
+                                        💡 Suggested: {pred.preventive_action}
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 )}
@@ -432,6 +502,14 @@ export default function DashboardPage() {
                                 <div><div style={{ fontSize: '11px', color: '#6b7280', textTransform: 'uppercase', marginBottom: '4px' }}>Past Returns</div><div style={{ fontWeight: 600, color: selectedReturn.past_return_count >= 5 ? '#dc2626' : '#374151' }}>{selectedReturn.past_return_count} return(s)</div></div>
                             </div>
                             <div style={{ padding: '12px', background: '#f9fafb', borderRadius: '8px', fontSize: '13px', marginBottom: '16px' }}><strong>Reason:</strong> {selectedReturn.return_reason}</div>
+
+                            {/* Video Preview (Phase 7) */}
+                            {selectedReturn.video_url && (
+                                <div style={{ marginBottom: '16px' }}>
+                                    <div style={{ fontSize: '12px', fontWeight: 700, color: '#374151', marginBottom: '6px' }}>Uploaded Video</div>
+                                    <video src={selectedReturn.video_url} controls style={{ width: '100%', borderRadius: '8px', maxHeight: '200px', background: '#000' }} />
+                                </div>
+                            )}
 
                             {/* AI Metrics */}
                             <div className="ai-card" style={{ marginBottom: '16px' }}>

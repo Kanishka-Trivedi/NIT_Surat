@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
-        const { order_id, customer_email, product_name, product_price, return_reason, return_reason_category, order_date, image_url, image_base64, brand_id } = body;
+        const { order_id, customer_email, product_name, product_price, return_reason, return_reason_category, order_date, image_url, image_base64, brand_id, is_video } = body;
 
         if (!order_id || !customer_email || !return_reason || !return_reason_category) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -29,6 +29,7 @@ export async function POST(request: NextRequest) {
             customerEmail: customer_email,
             productName: product_name || 'Unknown Product',
             imageBase64: image_base64,
+            isVideo: !!is_video,
         });
 
         const newReturn = {
@@ -38,6 +39,7 @@ export async function POST(request: NextRequest) {
             product_price: product_price || 0,
             return_reason, return_reason_category,
             image_url: image_url || null,
+            video_url: is_video ? (image_url || 'https://www.w3schools.com/html/mov_bbb.mp4') : undefined, // Mock video URL if not provided
             fraud_score: aiResult.fraudScore, fraud_level: aiResult.fraudLevel,
             recommended_action: aiResult.recommendedAction,
             confidence: aiResult.confidence,
@@ -52,6 +54,7 @@ export async function POST(request: NextRequest) {
             exchange_suggestion: aiResult.exchangeSuggestion,
             refund_loss_prevented: aiResult.refundLossPrevented,
             risk_factors: aiResult.riskFactors,
+            resale_item: aiResult.resaleItem,
         };
 
         addReturnRequest(newReturn);

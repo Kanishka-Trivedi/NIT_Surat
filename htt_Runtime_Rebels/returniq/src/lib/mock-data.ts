@@ -76,11 +76,37 @@ export const INITIAL_RETURNS: ReturnRequest[] = [
         risk_factors: [
             { category: 'frequency', label: 'Normal return history — 1 past return(s)', score: 3, severity: 'low', icon: 'low-freq' },
             { category: 'sentiment', label: 'Neutral/positive tone', score: -2, severity: 'low', icon: 'neutral' },
-            { category: 'image', label: 'Image matches stated reason', score: -5, severity: 'low', icon: 'match' },
+            { category: 'image', label: 'Product match confirmed', score: -5, severity: 'low', icon: 'match' },
             { category: 'value', label: 'Budget item (₹3999)', score: -3, severity: 'low', icon: 'low-val' },
+        ],
+        resale_item: {
+            id: 'RSL-101', return_id: 'RET-A1B2C3', product_name: 'Silk Blouse', original_price: 3999,
+            condition: 'Like New', listing_price: 3199, recovery_percentage: 80, listing_status: 'listed',
+            marketplace: 'Brand Open-Box', created_at: '2026-02-13T10:00:00Z'
+        },
+        ai_reasoning: '═══ AI FRAUD INTELLIGENCE REPORT ═══\n\nVERDICT: SUGGEST EXCHANGE | Risk: Low (22/100) | Confidence: 88%'
+    },
+    {
+        id: 'RET-X9Y8Z7', order_id: 'ORD-10221', customer_email: 'mike@example.com', product_name: 'Denim Jacket',
+        product_price: 5999, return_reason: 'Too small, need a larger size.',
+        return_reason_category: 'too_small', image_url: 'uploaded', fraud_score: 12, fraud_level: 'Low',
+        recommended_action: 'Suggest Exchange', confidence: 92, status: 'approved', created_at: '2026-02-11T14:15:00Z',
+        brand_id: 'brand-urbanstyle', damage_classification: 'correct_condition', sentiment_score: 0.1,
+        reason_image_mismatch: false, past_return_count: 0, refund_loss_prevented: 4199,
+        exchange_suggestion: { type: 'size_replacement', title: 'Size Exchange: Denim Jacket (L)', description: 'Send Large variant.', savings: 4199 },
+        risk_factors: [
+            { category: 'frequency', label: 'First-time return', score: -5, severity: 'low', icon: 'low-freq' },
+            { category: 'sentiment', label: 'Neutral tone', score: -2, severity: 'low', icon: 'neutral' },
+            { category: 'image', label: 'Image matches reason', score: -5, severity: 'low', icon: 'match' },
+            { category: 'value', label: 'Mid-range item (₹5999)', score: 8, severity: 'medium', icon: 'med-val' },
             { category: 'timing', label: 'Normal return window', score: -2, severity: 'low', icon: 'normal' },
         ],
-        ai_reasoning: '═══ AI FRAUD INTELLIGENCE REPORT ═══\n\nVERDICT: SUGGEST EXCHANGE | Risk: Low (22/100) | Confidence: 88%',
+        resale_item: { // Example of an item that was exchanged but the original is resellable
+            id: 'RSL-102', return_id: 'RET-X9Y8Z7', product_name: 'Denim Jacket', original_price: 5999,
+            condition: 'Like New', listing_price: 4799, recovery_percentage: 80, listing_status: 'sold',
+            marketplace: 'Brand Open-Box', created_at: '2026-02-12T09:00:00Z'
+        },
+        ai_reasoning: '═══ AI FRAUD INTELLIGENCE REPORT ═══\n\nVERDICT: SUGGEST EXCHANGE | Risk: Low (12/100) | Confidence: 92%'
     },
     {
         id: 'RET-D4E5F6', order_id: 'ORD-10221', customer_email: 'rachel@example.com', product_name: 'Cashmere Sweater',
@@ -249,44 +275,76 @@ export function updateReturnStatus(id: string, status: ReturnRequest['status']):
 
 // ─── Dashboard Stats (brand-scoped) ──────────────────────────────────
 
-export function getDashboardStats(brandId?: string): DashboardStats {
-    const all = brandId ? returnRequests.filter(r => r.brand_id === brandId) : returnRequests;
-    const approved = all.filter(r => r.status === 'approved');
-    const rejected = all.filter(r => r.status === 'rejected');
-    const exchanged = all.filter(r => r.status === 'exchanged');
-    const pending = all.filter(r => r.status === 'pending');
-    const highRisk = all.filter(r => r.fraud_level === 'High');
+// ─── Phase 7 New Logic: Resale & Predictions ─────────────────────────
 
-    const totalRefundSaved =
-        rejected.reduce((s, r) => s + r.product_price, 0) +
-        exchanged.reduce((s, r) => s + (r.exchange_suggestion?.savings || r.product_price * 0.3), 0);
-    const totalLossPrevented = all.reduce((s, r) => s + r.refund_loss_prevented, 0);
-    const avgFraudScore = all.length > 0 ? all.reduce((s, r) => s + r.fraud_score, 0) / all.length : 0;
-    const avgConfidence = all.length > 0 ? all.reduce((s, r) => s + r.confidence, 0) / all.length : 0;
-    const exchangeTotal = exchanged.length + approved.length;
-    const exchangeSavingsRate = exchangeTotal > 0 ? (exchanged.length / exchangeTotal) * 100 : 0;
+export const MOCK_LOSS_PREDICTIONS: any[] = [
+    {
+        order_id: 'ORD-10245', customer_email: 'highroller@example.com', predicted_loss: 12500,
+        risk_score: 85, risk_reason: 'Serial returner (4 returns in 30 days)',
+        preventive_action: 'Review return policy manually', status: 'active'
+    },
+    {
+        order_id: 'ORD-10248', customer_email: 'newbie@example.com', predicted_loss: 4500,
+        risk_score: 65, risk_reason: 'Sizing mismatch common for this SKU',
+        preventive_action: 'Send size guide email', status: 'active'
+    }
+];
 
-    // Social proof uplift: exchange rate improvement estimate
-    const baselineExchangeRate = 25; // industry baseline 25%
-    const socialProofUplift = Math.round(exchangeSavingsRate - baselineExchangeRate);
+export function getLossPredictions() {
+    return MOCK_LOSS_PREDICTIONS;
+}
+
+export function getResaleItems(brandId?: string) {
+    // Extract resale items from returns
+    return INITIAL_RETURNS
+        .filter(r => r.resale_item && (!brandId || r.brand_id === brandId))
+        .map(r => r.resale_item!);
+}
+
+export function getSustainabilityMetrics(brandId?: string) {
+    const items = getResaleItems(brandId);
+    const revenue = items.reduce((sum, item) => sum + (item.listing_status === 'sold' ? item.listing_price : 0), 0);
+    const diverted = items.length;
+    // simple heuristic: 2kg CO2 saved per item diverted
+    const co2 = diverted * 2.5;
 
     return {
-        totalRequests: all.length, approvedCount: approved.length, rejectedCount: rejected.length,
-        exchangedCount: exchanged.length, pendingCount: pending.length, totalRefundSaved,
-        avgFraudScore: Math.round(avgFraudScore), totalLossPrevented,
-        highRiskCount: highRisk.length, avgConfidence: Math.round(avgConfidence),
-        exchangeSavingsRate: Math.round(exchangeSavingsRate),
-        socialProofUplift: Math.max(0, socialProofUplift),
+        items_diverted: diverted,
+        revenue_recovered: revenue,
+        co2_avoided_kg: Math.round(co2 * 10) / 10
     };
 }
 
-// ─── Analytics Data (brand-scoped) ───────────────────────────────────
-
 export function getAnalyticsData(brandId?: string): AnalyticsData {
-    const stats = getDashboardStats(brandId);
-    const all = brandId ? returnRequests.filter(r => r.brand_id === brandId) : returnRequests;
+    const brandReturns = INITIAL_RETURNS.filter(r => !brandId || r.brand_id === brandId);
 
-    // Monthly trend (mock 6 months)
+    // 1. Calculate Stats First
+    const totalRequests = brandReturns.length;
+    const approvedCount = brandReturns.filter(r => r.status === 'approved').length;
+    const rejectedCount = brandReturns.filter(r => r.status === 'rejected').length;
+    const exchangedCount = brandReturns.filter(r => r.exchange_suggestion).length; // rough proxy
+    const pendingCount = brandReturns.filter(r => r.status === 'pending').length;
+    const totalRefundSaved = brandReturns.reduce((acc, curr) => acc + (curr.refund_loss_prevented || 0), 0);
+    const avgFraudScore = Math.round(brandReturns.reduce((acc, curr) => acc + curr.fraud_score, 0) / (totalRequests || 1));
+    const totalLossPrevented = totalRefundSaved; // simplified
+    const highRiskCount = brandReturns.filter(r => r.fraud_level === 'High').length;
+    const avgConfidence = Math.round(brandReturns.reduce((acc, curr) => acc + curr.confidence, 0) / (totalRequests || 1));
+
+    // New metrics
+    const susMetrics = getSustainabilityMetrics(brandId);
+
+    const stats: DashboardStats = {
+        totalRequests, approvedCount, rejectedCount, exchangedCount, pendingCount,
+        totalRefundSaved, avgFraudScore, totalLossPrevented, highRiskCount,
+        avgConfidence, exchangeSavingsRate: 24, socialProofUplift: 18,
+        // Phase 7
+        resaleRevenue: susMetrics.revenue_recovered,
+        itemsDiverted: susMetrics.items_diverted,
+        co2Avoided: susMetrics.co2_avoided_kg,
+        fraudDetectedCount: highRiskCount
+    };
+
+    // 2. Monthly trend (mock 6 months) using calculated stats for the last month
     const months = ['Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb'];
     const monthly: MonthlyData[] = months.map((month, i) => ({
         month,
@@ -296,7 +354,8 @@ export function getAnalyticsData(brandId?: string): AnalyticsData {
         fraud_flagged: Math.floor(1 + Math.random() * 6),
         revenue_saved: Math.floor(15000 + Math.random() * 40000 + i * 8000),
     }));
-    // Make Feb match real data
+
+    // Make Feb match calculated stats
     const feb = monthly[monthly.length - 1];
     feb.returns = stats.totalRequests;
     feb.exchanges = stats.exchangedCount;
@@ -304,18 +363,18 @@ export function getAnalyticsData(brandId?: string): AnalyticsData {
     feb.fraud_flagged = stats.highRiskCount;
     feb.revenue_saved = Math.round(stats.totalRefundSaved);
 
-    // Reason breakdown
+    // 3. Reason breakdown
     const reasonCounts: Record<string, number> = {};
-    for (const r of all) {
+    for (const r of brandReturns) {
         const cat = r.return_reason_category;
         reasonCounts[cat] = (reasonCounts[cat] || 0) + 1;
     }
-    const total = all.length || 1;
+    const total = brandReturns.length || 1;
     const reasonBreakdown: ReasonBreakdown[] = Object.entries(reasonCounts)
         .map(([reason, count]) => ({ reason: reason.replace(/_/g, ' '), count, percentage: Math.round((count / total) * 100) }))
         .sort((a, b) => b.count - a.count);
 
-    // Fraud score trend (last 14 days)
+    // 4. Fraud score trend (last 14 days)
     const fraudTrend: { date: string; score: number }[] = [];
     for (let d = 13; d >= 0; d--) {
         const date = new Date();
@@ -327,6 +386,10 @@ export function getAnalyticsData(brandId?: string): AnalyticsData {
     }
 
     return { stats, monthly, reasonBreakdown, fraudTrend };
+}
+
+export function getDashboardStats(brandId?: string): DashboardStats {
+    return getAnalyticsData(brandId).stats;
 }
 
 // ─── Social Proof Data (per product) ─────────────────────────────────

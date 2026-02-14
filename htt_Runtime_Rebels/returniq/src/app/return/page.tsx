@@ -19,6 +19,7 @@ export default function ReturnPage() {
     const [reasonText, setReasonText] = useState('');
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const [isVideo, setIsVideo] = useState(false);
     const [base64Image, setBase64Image] = useState<string | null>(null);
     const [submitting, setSubmitting] = useState(false);
     const [aiStep, setAiStep] = useState(0);
@@ -46,6 +47,7 @@ export default function ReturnPage() {
             setSelectedFile(file);
             const url = URL.createObjectURL(file);
             setPreviewUrl(url);
+            setIsVideo(file.type.startsWith('video/'));
 
             // Convert to base64
             const reader = new FileReader();
@@ -86,6 +88,7 @@ export default function ReturnPage() {
                     order_date: order.order_date,
                     image_url: selectedFile ? 'uploaded' : null,
                     image_base64: base64Image,
+                    is_video: isVideo,
                 }),
             });
 
@@ -301,16 +304,16 @@ export default function ReturnPage() {
                 {/* Step 3: Upload & Review */}
                 {step === 3 && (
                     <div className="card" style={{ padding: '32px' }}>
-                        <h2 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '4px' }}>Upload Product Image</h2>
+                        <h2 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '4px' }}>Upload Proof</h2>
                         <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '24px' }}>
-                            Upload a photo of the product to help us assess your return.
+                            Upload a photo or video of the product to help us assess your return.
                         </p>
 
                         <input
                             type="file"
                             ref={fileInputRef}
                             onChange={handleFileChange}
-                            accept="image/*"
+                            accept="image/*,video/*"
                             style={{ display: 'none' }}
                         />
 
@@ -321,11 +324,19 @@ export default function ReturnPage() {
                         >
                             {previewUrl ? (
                                 <div>
-                                    <img
-                                        src={previewUrl}
-                                        alt="Preview"
-                                        style={{ maxWidth: '200px', maxHeight: '200px', borderRadius: '8px', margin: '0 auto 12px', display: 'block' }}
-                                    />
+                                    {isVideo ? (
+                                        <video
+                                            src={previewUrl}
+                                            controls
+                                            style={{ maxWidth: '100%', maxHeight: '200px', borderRadius: '8px', margin: '0 auto 12px', display: 'block' }}
+                                        />
+                                    ) : (
+                                        <img
+                                            src={previewUrl}
+                                            alt="Preview"
+                                            style={{ maxWidth: '200px', maxHeight: '200px', borderRadius: '8px', margin: '0 auto 12px', display: 'block' }}
+                                        />
+                                    )}
                                     <div className="upload-zone-text" style={{ color: '#059669' }}>
                                         ✓ {selectedFile?.name}
                                     </div>
@@ -334,8 +345,8 @@ export default function ReturnPage() {
                             ) : (
                                 <div>
                                     <div className="upload-zone-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" /><circle cx="12" cy="13" r="4" /></svg></div>
-                                    <div className="upload-zone-text">Click to upload a photo</div>
-                                    <div className="upload-zone-hint">JPG, PNG, WEBP up to 10MB</div>
+                                    <div className="upload-zone-text">Click to upload photo or video</div>
+                                    <div className="upload-zone-hint">JPG, PNG, MP4 up to 50MB</div>
                                 </div>
                             )}
                         </div>
@@ -361,8 +372,8 @@ export default function ReturnPage() {
                                     <span style={{ fontWeight: 500 }}>{formatCurrency(order.product_price)}</span>
                                 </div>
                                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                    <span style={{ color: '#6b7280' }}>Image</span>
-                                    <span style={{ fontWeight: 500 }}>{selectedFile ? '✓ Attached' : '✗ Not attached'}</span>
+                                    <span style={{ color: '#6b7280' }}>Proof</span>
+                                    <span style={{ fontWeight: 500 }}>{selectedFile ? (isVideo ? '✓ Video Attached' : '✓ Image Attached') : '✗ Not attached'}</span>
                                 </div>
                             </div>
                         </div>
@@ -384,7 +395,11 @@ export default function ReturnPage() {
                             <div className="ai-scanner">
                                 {previewUrl ? (
                                     <div className="ai-scan-image-wrapper">
-                                        <img src={previewUrl} alt="Analyzing" className="ai-scan-image" />
+                                        {isVideo ? (
+                                            <video src={previewUrl} className="ai-scan-image" style={{ objectFit: 'cover' }} autoPlay muted loop />
+                                        ) : (
+                                            <img src={previewUrl} alt="Analyzing" className="ai-scan-image" />
+                                        )}
                                         <div className="ai-scan-line"></div>
                                         <div className="ai-scan-overlay"></div>
                                     </div>

@@ -380,11 +380,12 @@ export async function analyzeReturn(params: {
     customerEmail: string;
     productName: string;
     imageBase64?: string; // New optional parameter
+    isVideo?: boolean; // New optional parameter
 }): Promise<AIAnalysisResult> {
     // Fast async processing — under 3 seconds for demo
     await new Promise((resolve) => setTimeout(resolve, 800 + Math.random() * 600));
 
-    const { reasonCategory, reasonText, productPrice, orderDate, hasImage, customerEmail, productName, imageBase64 } = params;
+    const { reasonCategory, reasonText, productPrice, orderDate, hasImage, customerEmail, productName, imageBase64, isVideo } = params;
 
     // ─── Run all analysis modules ───
     const frequencyResult = analyzeReturnFrequency(customerEmail);
@@ -392,7 +393,7 @@ export async function analyzeReturn(params: {
 
     // Use image analysis if base64 provided, otherwise fall back to heuristics
     let damageResult;
-    if (imageBase64 && hasImage) {
+    if (imageBase64 && hasImage && !isVideo) { // Skip advanced image analysis for video for now (mocking video logic below)
         const imageAnalysis = analyzeImage(imageBase64);
         // We still check for mismatch logic
         const mismatch = (
@@ -428,6 +429,19 @@ export async function analyzeReturn(params: {
         };
     } else {
         damageResult = classifyDamage({ hasImage, reasonCategory, reasonText });
+    }
+
+    // Video Analysis Mock Logic
+    if (isVideo) {
+        damageResult.factors.push({
+            category: 'image',
+            label: 'Video evidence provided — verified interactivity',
+            score: -10,
+            severity: 'low',
+            icon: 'match',
+        });
+        // Assume video confirms details better than image
+        if (damageResult.risk > 0) damageResult.risk -= 10;
     }
 
     const valueFactor = analyzeProductValue(productPrice);
@@ -472,6 +486,23 @@ export async function analyzeReturn(params: {
         recommendedAction = 'Approve Refund';
     }
 
+    // ─── Generate Resale Item (Mock) ───
+    let resaleItem: AIAnalysisResult['resaleItem'];
+    if (damageResult.classification !== 'damaged' && fraudLevel !== 'High') {
+        resaleItem = {
+            id: `RSL-${Math.random().toString(36).substr(2, 6).toUpperCase()}`,
+            return_id: '', // Will be filled by caller
+            product_name: productName,
+            original_price: productPrice,
+            condition: damageResult.classification === 'correct_condition' ? 'Like New' : 'Good',
+            listing_price: Math.round(productPrice * 0.8), // Mock logic
+            recovery_percentage: 80,
+            listing_status: 'pending',
+            marketplace: 'Brand Open-Box',
+            created_at: new Date().toISOString(),
+        };
+    }
+
     // If mismatch detected, always flag suspicious
     if (damageResult.mismatch && fraudScore < 60) {
         recommendedAction = 'Suggest Exchange';
@@ -508,8 +539,9 @@ export async function analyzeReturn(params: {
     sections.push(`SENTIMENT ANALYSIS: ${sentimentResult.score > 0 ? 'Positive' : sentimentResult.score > -0.3 ? 'Neutral' : 'Negative'} (score: ${sentimentResult.score.toFixed(2)})`);
 
     // Damage classification
+    // Damage classification
     const classLabel = damageResult.classification.replace('_', ' ');
-    sections.push(`IMAGE CLASSIFICATION: ${classLabel.toUpperCase()}`);
+    sections.push(`IMAGE CLASSIFICATION: ${classLabel.toUpperCase()} ${isVideo ? '(VIDEO VERIFIED)' : ''}`);
     if (damageResult.mismatch) {
         sections.push(`   WARN: MISMATCH - Stated reason does not match detected image condition`);
     }
@@ -547,5 +579,6 @@ export async function analyzeReturn(params: {
         exchangeSuggestion,
         refundLossPrevented,
         riskFactors,
+        resaleItem,
     };
 }
