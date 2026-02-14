@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { ReturnRequest, DashboardStats, BrandSession, LossPrediction } from '@/types';
-import DashboardLayout from '@/components/DashboardLayout';
 import { formatCurrency, formatDate } from '@/lib/utils';
 
 /* ── Inline SVG icon components ── */
@@ -78,19 +77,12 @@ export default function DashboardPage() {
         finally { setLoading(false); }
     }, []);
 
-    const [walletBalance, setWalletBalance] = useState(0);
-
     useEffect(() => {
         const stored = sessionStorage.getItem('returniq_session');
         if (!stored) { router.push('/dashboard/login'); return; }
         const s: BrandSession = JSON.parse(stored);
         setSession(s);
         fetchData(s.brand.id);
-
-        // Fetch wallet balance
-        const balance = parseInt(localStorage.getItem('returniq_wallet') || '150'); // Default 150 for demo
-        setWalletBalance(balance);
-
         if (!sessionStorage.getItem('returniq_tour_seen')) {
             setShowTour(true);
         }
@@ -160,10 +152,10 @@ export default function DashboardPage() {
     }
 
     return (
-        <DashboardLayout session={session}>
+        <div className="dashboard-layout">
             {/* Guided Demo Tour */}
             {showTour && (
-                <div className="demo-tour-overlay" onClick={dismissTour} style={{ zIndex: 100 }}>
+                <div className="demo-tour-overlay" onClick={dismissTour}>
                     <div className="demo-tour-card" onClick={e => e.stopPropagation()}>
                         <div className="demo-tour-icon" style={{ fontSize: '32px', background: `linear-gradient(135deg, ${accent}, ${accent}bb)`, width: '64px', height: '64px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', color: 'white' }}>
                             {tourStep === 0 ? Icon.grid : tourStep === 1 ? Icon.brain : Icon.zap}
@@ -200,117 +192,164 @@ export default function DashboardPage() {
                 </div>
             )}
 
-            <div className="dashboard-header">
-                <div>
-                    <h1 className="dashboard-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: accent, display: 'inline-block' }}></span>
-                        {session.brand.name} Dashboard
-                    </h1>
-                    <p className="dashboard-subtitle">AI-powered return management &bull; {session.brand.industry}</p>
-                </div>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                    {isAdmin && (
-                        <button className="btn btn-outline btn-sm" onClick={handleExport}>{Icon.download} Export CSV</button>
-                    )}
-                    <a href="/dashboard/analytics" className="btn btn-outline btn-sm">{Icon.chart} Analytics</a>
-                    <a href="/" className="btn btn-outline btn-sm" target="_blank">{Icon.link} Portal</a>
-                </div>
-            </div>
-
-            {/* Stats */}
-            {stats && (
-                <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
-                    <div className="stat-card" style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', border: 'none' }}>
-                        <div className="stat-card-icon" style={{ background: 'rgba(255,255,255,0.2)', color: 'white' }}>🪙</div>
-                        <div className="stat-card-value" style={{ color: 'white' }}>{walletBalance}</div>
-                        <div className="stat-card-label" style={{ color: 'rgba(255,255,255,0.9)' }}>Green Credits Earned</div>
-                    </div>
-                    <div className="stat-card">
-                        <div className="stat-card-icon" style={{ background: `${accent}15`, color: accent }}>{Icon.box}</div>
-                        <div className="stat-card-value">{stats.totalRequests}</div>
-                        <div className="stat-card-label">Total Returns</div>
-                    </div>
-                    <div className="stat-card">
-                        <div className="stat-card-icon" style={{ background: '#fef3c7', color: '#d97706' }}>{Icon.clock}</div>
-                        <div className="stat-card-value">{stats.pendingCount}</div>
-                        <div className="stat-card-label">Pending Review</div>
-                    </div>
-                    <div className="stat-card">
-                        <div className="stat-card-icon" style={{ background: '#fef2f2', color: '#dc2626' }}>{Icon.alert}</div>
-                        <div className="stat-card-value">{stats.highRiskCount}</div>
-                        <div className="stat-card-label">High Risk</div>
-                    </div>
-                    <div className="stat-card">
-                        <div className="stat-card-icon" style={{ background: '#f5f3ff', color: '#7c3aed' }}>{Icon.target}</div>
-                        <div className="stat-card-value">{stats.avgConfidence}%</div>
-                        <div className="stat-card-label">AI Confidence</div>
-                    </div>
-                    <div className="stat-card" style={{ background: `linear-gradient(135deg, ${accent}, ${accent}dd)`, border: 'none' }}>
-                        <div className="stat-card-icon" style={{ background: 'rgba(255,255,255,0.2)', color: 'white' }}>{Icon.shield}</div>
-                        <div className="stat-card-value" style={{ color: 'white', fontSize: '22px' }}>{formatCurrency(stats.totalLossPrevented)}</div>
-                        <div className="stat-card-label" style={{ color: 'rgba(255,255,255,0.8)' }}>Loss Prevented</div>
-                    </div>
-                    <div className="stat-card" style={{ background: 'linear-gradient(135deg, #059669, #047857)', border: 'none' }}>
-                        <div className="stat-card-icon" style={{ background: 'rgba(255,255,255,0.2)', color: 'white' }}>{Icon.dollar}</div>
-                        <div className="stat-card-value" style={{ color: 'white', fontSize: '22px' }}>{formatCurrency(stats.totalRefundSaved)}</div>
-                        <div className="stat-card-label" style={{ color: 'rgba(255,255,255,0.8)' }}>Revenue Saved</div>
-                    </div>
-                    <div className="stat-card">
-                        <div className="stat-card-icon" style={{ background: '#ecfdf5', color: '#059669' }}>{Icon.refresh}</div>
-                        <div className="stat-card-value">{stats.exchangeSavingsRate}%</div>
-                        <div className="stat-card-label">Exchange Rate</div>
-                    </div>
-                    <div className="stat-card">
-                        <div className="stat-card-icon" style={{ background: '#fef3c7', color: '#d97706' }}>{Icon.trending}</div>
-                        <div className="stat-card-value">{stats.avgFraudScore}</div>
-                        <div className="stat-card-label">Avg Fraud Score</div>
-                    </div>
-                    <div className="stat-card" style={{ background: 'linear-gradient(135deg, #f59e0b, #ea580c)', border: 'none' }}>
-                        <div className="stat-card-icon" style={{ background: 'rgba(255,255,255,0.2)', color: 'white' }}>{Icon.handshake}</div>
-                        <div className="stat-card-value" style={{ color: 'white' }}>+{stats.socialProofUplift}%</div>
-                        <div className="stat-card-label" style={{ color: 'rgba(255,255,255,0.85)' }}>Exchange Uplift from Social Proof</div>
-                    </div>
-                </div>
-            )
-            }
-
-            {/* ─── Phase 8: Kirana Network Metrics ─── */}
-            <div style={{ marginBottom: '24px' }}>
-                <h3 style={{ fontSize: '14px', fontWeight: 700, color: '#374151', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ fontSize: '16px' }}>🏪</span> Kirana Return Network
-                    <a href="/dashboard/kirana" style={{ marginLeft: 'auto', fontSize: '12px', color: accent, textDecoration: 'none', fontWeight: 600 }}>View All →</a>
-                </h3>
-                <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
-                    <div className="stat-card" style={{ border: '2px solid #f59e0b20' }}>
-                        <div className="stat-card-icon" style={{ background: '#fffbeb', color: '#d97706' }}>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
+            {/* Sidebar */}
+            <aside className="sidebar" style={{ width: sidebarCollapsed ? '64px' : '240px', transition: 'width 0.3s cubic-bezier(0.4,0,0.2,1)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: sidebarCollapsed ? 'center' : 'space-between', padding: '0 12px' }}>
+                    <a href="/dashboard" className="sidebar-logo" style={{ overflow: 'hidden' }}>
+                        <div className="sidebar-logo-icon" style={{ background: accent, flexShrink: 0 }}>
+                            {session.brand.name[0]}
                         </div>
-                        <div className="stat-card-value" style={{ color: '#d97706' }}>34%</div>
-                        <div className="stat-card-label">Returns via Kirana</div>
-                    </div>
-                    <div className="stat-card" style={{ border: '2px solid #05966920' }}>
-                        <div className="stat-card-icon" style={{ background: '#f0fdf4', color: '#059669' }}>{Icon.dollar}</div>
-                        <div className="stat-card-value" style={{ color: '#059669' }}>₹3,124</div>
-                        <div className="stat-card-label">Avg Saved / Drop</div>
-                    </div>
-                    <div className="stat-card" style={{ border: '2px solid #4f46e520' }}>
-                        <div className="stat-card-icon" style={{ background: '#eef2ff', color: '#4f46e5' }}>{Icon.zap}</div>
-                        <div className="stat-card-value" style={{ color: '#4f46e5' }}>8 min</div>
-                        <div className="stat-card-label">Fastest Turnaround</div>
-                    </div>
-                    <div className="stat-card" style={{ background: 'linear-gradient(135deg, #059669, #16a34a)', border: 'none' }}>
-                        <div className="stat-card-icon" style={{ background: 'rgba(255,255,255,0.2)', color: 'white' }}>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" /><path d="M7 12l3-6 4 12 3-6" /></svg>
+                        {!sidebarCollapsed && <div className="sidebar-logo-text">{session.brand.name}</div>}
+                    </a>
+                    <button className="btn btn-ghost btn-icon" onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                        style={{ fontSize: '14px', padding: '4px', flexShrink: 0 }}>
+                        {sidebarCollapsed ? '→' : '←'}
+                    </button>
+                </div>
+
+                <nav className="sidebar-nav">
+                    {[
+                        { href: '/dashboard', icon: Icon.grid, label: 'Overview', active: true },
+                        { href: '/dashboard/kirana', icon: Icon.box, label: 'Kirana Network', active: false },
+                        { href: '/dashboard/analytics', icon: Icon.chart, label: 'Analytics', active: false },
+                        { href: '/dashboard/resale', icon: Icon.refresh, label: 'Resale Pipeline', active: false },
+                        { href: '/return/options?returnId=demo&product=Classic%20Oxford%20Shirt&variant=Size%20M&price=4499&orderId=ORD-10240', icon: Icon.link, label: 'Swaps Demo', active: false },
+                        ...(isAdmin ? [{ href: '/dashboard/settings', icon: Icon.settings, label: 'Settings', active: false }] : []),
+                    ].map(link => (
+                        <a key={link.label} href={link.href} className={`sidebar-link ${link.active ? 'active' : ''}`}
+                            style={{ borderLeft: link.active ? `3px solid ${accent}` : '3px solid transparent' }}>
+                            <span className="sidebar-link-icon">{link.icon}</span>
+                            {!sidebarCollapsed && link.label}
+                        </a>
+                    ))}
+                </nav>
+
+                {!sidebarCollapsed && (
+                    <div className="sidebar-footer">
+                        <div className="sidebar-user">
+                            <div className="sidebar-avatar" style={{ background: accent }}>{session.user.name[0]}</div>
+                            <div className="sidebar-user-info">
+                                <div className="sidebar-user-name">{session.user.name}</div>
+                                <div className="sidebar-user-email">
+                                    <span className={`badge ${session.user.role === 'admin' ? 'badge-info' : 'badge-warning'}`} style={{ fontSize: '10px', marginRight: '4px' }}>
+                                        {session.user.role}
+                                    </span>
+                                    {session.user.email}
+                                </div>
+                            </div>
                         </div>
-                        <div className="stat-card-value" style={{ color: 'white' }}>28.5 kg</div>
-                        <div className="stat-card-label" style={{ color: 'rgba(255,255,255,0.8)' }}>CO₂ Saved</div>
+                        <button className="btn btn-ghost btn-sm" onClick={handleLogout}
+                            style={{ marginTop: '8px', width: '100%', color: '#9ca3af', fontSize: '12px' }}>Sign Out</button>
+                    </div>
+                )}
+            </aside>
+
+            {/* Main */}
+            <main className="dashboard-main">
+                <div className="dashboard-header">
+                    <div>
+                        <h1 className="dashboard-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: accent, display: 'inline-block' }}></span>
+                            {session.brand.name} Dashboard
+                        </h1>
+                        <p className="dashboard-subtitle">AI-powered return management &bull; {session.brand.industry}</p>
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                        {isAdmin && (
+                            <button className="btn btn-outline btn-sm" onClick={handleExport}>{Icon.download} Export CSV</button>
+                        )}
+                        <a href="/dashboard/analytics" className="btn btn-outline btn-sm">{Icon.chart} Analytics</a>
+                        <a href="/" className="btn btn-outline btn-sm" target="_blank">{Icon.link} Portal</a>
                     </div>
                 </div>
-            </div>
 
-            {/* ─── Phase 7: Resale & Sustainability Metrics ─── */}
-            {
-                stats && (stats.resaleRevenue > 0 || stats.co2Avoided > 0) && (
+                {/* Stats */}
+                {stats && (
+                    <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
+                        <div className="stat-card">
+                            <div className="stat-card-icon" style={{ background: `${accent}15`, color: accent }}>{Icon.box}</div>
+                            <div className="stat-card-value">{stats.totalRequests}</div>
+                            <div className="stat-card-label">Total Returns</div>
+                        </div>
+                        <div className="stat-card">
+                            <div className="stat-card-icon" style={{ background: '#fef3c7', color: '#d97706' }}>{Icon.clock}</div>
+                            <div className="stat-card-value">{stats.pendingCount}</div>
+                            <div className="stat-card-label">Pending Review</div>
+                        </div>
+                        <div className="stat-card">
+                            <div className="stat-card-icon" style={{ background: '#fef2f2', color: '#dc2626' }}>{Icon.alert}</div>
+                            <div className="stat-card-value">{stats.highRiskCount}</div>
+                            <div className="stat-card-label">High Risk</div>
+                        </div>
+                        <div className="stat-card">
+                            <div className="stat-card-icon" style={{ background: '#f5f3ff', color: '#7c3aed' }}>{Icon.target}</div>
+                            <div className="stat-card-value">{stats.avgConfidence}%</div>
+                            <div className="stat-card-label">AI Confidence</div>
+                        </div>
+                        <div className="stat-card" style={{ background: `linear-gradient(135deg, ${accent}, ${accent}dd)`, border: 'none' }}>
+                            <div className="stat-card-icon" style={{ background: 'rgba(255,255,255,0.2)', color: 'white' }}>{Icon.shield}</div>
+                            <div className="stat-card-value" style={{ color: 'white', fontSize: '22px' }}>{formatCurrency(stats.totalLossPrevented)}</div>
+                            <div className="stat-card-label" style={{ color: 'rgba(255,255,255,0.8)' }}>Loss Prevented</div>
+                        </div>
+                        <div className="stat-card" style={{ background: 'linear-gradient(135deg, #059669, #047857)', border: 'none' }}>
+                            <div className="stat-card-icon" style={{ background: 'rgba(255,255,255,0.2)', color: 'white' }}>{Icon.dollar}</div>
+                            <div className="stat-card-value" style={{ color: 'white', fontSize: '22px' }}>{formatCurrency(stats.totalRefundSaved)}</div>
+                            <div className="stat-card-label" style={{ color: 'rgba(255,255,255,0.8)' }}>Revenue Saved</div>
+                        </div>
+                        <div className="stat-card">
+                            <div className="stat-card-icon" style={{ background: '#ecfdf5', color: '#059669' }}>{Icon.refresh}</div>
+                            <div className="stat-card-value">{stats.exchangeSavingsRate}%</div>
+                            <div className="stat-card-label">Exchange Rate</div>
+                        </div>
+                        <div className="stat-card">
+                            <div className="stat-card-icon" style={{ background: '#fef3c7', color: '#d97706' }}>{Icon.trending}</div>
+                            <div className="stat-card-value">{stats.avgFraudScore}</div>
+                            <div className="stat-card-label">Avg Fraud Score</div>
+                        </div>
+                        <div className="stat-card" style={{ background: 'linear-gradient(135deg, #f59e0b, #ea580c)', border: 'none' }}>
+                            <div className="stat-card-icon" style={{ background: 'rgba(255,255,255,0.2)', color: 'white' }}>{Icon.handshake}</div>
+                            <div className="stat-card-value" style={{ color: 'white' }}>+{stats.socialProofUplift}%</div>
+                            <div className="stat-card-label" style={{ color: 'rgba(255,255,255,0.85)' }}>Exchange Uplift from Social Proof</div>
+                        </div>
+                    </div>
+                )}
+
+                {/* ─── Phase 8: Kirana Network Metrics ─── */}
+                <div style={{ marginBottom: '24px' }}>
+                    <h3 style={{ fontSize: '14px', fontWeight: 700, color: '#374151', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '16px' }}>🏪</span> Kirana Return Network
+                        <a href="/dashboard/kirana" style={{ marginLeft: 'auto', fontSize: '12px', color: accent, textDecoration: 'none', fontWeight: 600 }}>View All →</a>
+                    </h3>
+                    <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
+                        <div className="stat-card" style={{ border: '2px solid #f59e0b20' }}>
+                            <div className="stat-card-icon" style={{ background: '#fffbeb', color: '#d97706' }}>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
+                            </div>
+                            <div className="stat-card-value" style={{ color: '#d97706' }}>34%</div>
+                            <div className="stat-card-label">Returns via Kirana</div>
+                        </div>
+                        <div className="stat-card" style={{ border: '2px solid #05966920' }}>
+                            <div className="stat-card-icon" style={{ background: '#f0fdf4', color: '#059669' }}>{Icon.dollar}</div>
+                            <div className="stat-card-value" style={{ color: '#059669' }}>₹3,124</div>
+                            <div className="stat-card-label">Avg Saved / Drop</div>
+                        </div>
+                        <div className="stat-card" style={{ border: '2px solid #4f46e520' }}>
+                            <div className="stat-card-icon" style={{ background: '#eef2ff', color: '#4f46e5' }}>{Icon.zap}</div>
+                            <div className="stat-card-value" style={{ color: '#4f46e5' }}>8 min</div>
+                            <div className="stat-card-label">Fastest Turnaround</div>
+                        </div>
+                        <div className="stat-card" style={{ background: 'linear-gradient(135deg, #059669, #16a34a)', border: 'none' }}>
+                            <div className="stat-card-icon" style={{ background: 'rgba(255,255,255,0.2)', color: 'white' }}>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" /><path d="M7 12l3-6 4 12 3-6" /></svg>
+                            </div>
+                            <div className="stat-card-value" style={{ color: 'white' }}>28.5 kg</div>
+                            <div className="stat-card-label" style={{ color: 'rgba(255,255,255,0.8)' }}>CO₂ Saved</div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* ─── Phase 7: Resale & Sustainability Metrics ─── */}
+                {stats && (stats.resaleRevenue > 0 || stats.co2Avoided > 0) && (
                     <div style={{ marginBottom: '24px' }}>
                         <h3 style={{ fontSize: '14px', fontWeight: 700, color: '#374151', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <span style={{ fontSize: '16px' }}>♻️</span> Circular Economy Impact
@@ -339,12 +378,10 @@ export default function DashboardPage() {
                             </div>
                         </div>
                     </div>
-                )
-            }
+                )}
 
-            {/* ─── Phase 7: Future Loss Predictions ─── */}
-            {
-                predictions.length > 0 && (
+                {/* ─── Phase 7: Future Loss Predictions ─── */}
+                {predictions.length > 0 && (
                     <div style={{ marginBottom: '24px', background: '#fff1f2', border: '1px solid #fecdd3', borderRadius: '12px', padding: '16px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
                             <h3 style={{ fontSize: '15px', fontWeight: 700, color: '#9f1239', display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -370,12 +407,10 @@ export default function DashboardPage() {
                             ))}
                         </div>
                     </div>
-                )
-            }
+                )}
 
-            {/* ─── OpenLeaf Swap Stats ─── */}
-            {
-                stats && (
+                {/* ─── OpenLeaf Swap Stats ─── */}
+                {stats && (
                     <div style={{ marginBottom: '24px' }}>
                         <h3 style={{ fontSize: '14px', fontWeight: 700, color: '#374151', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <span style={{ fontSize: '16px' }}>⭐</span> OpenLeaf Swap Metrics
@@ -403,86 +438,87 @@ export default function DashboardPage() {
                             </div>
                         </div>
                     </div>
-                )
-            }
+                )}
 
-            {/* Filters */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ fontSize: '14px', fontWeight: 500, color: '#374151' }}>Filter:</span>
-                    {['all', 'pending', 'approved', 'rejected', 'exchanged'].map(s => (
-                        <button key={s} className={`btn btn-sm ${filterStatus === s ? '' : 'btn-outline'}`}
-                            style={filterStatus === s ? { background: accent, color: 'white', border: `1px solid ${accent}` } : {}}
-                            onClick={() => setFilterStatus(s)}>
-                            {s === 'all' ? 'All' : s.charAt(0).toUpperCase() + s.slice(1)}
-                        </button>
-                    ))}
-                </div>
-                <span style={{ fontSize: '13px', color: '#9ca3af' }}>{filteredReturns.length} return(s)</span>
-            </div>
-
-            {/* Returns Table */}
-            <div className="table-wrapper">
-                <table className="table">
-                    <thead>
-                        <tr>
-                            <th>Request</th><th>Product</th><th>Fraud Risk</th><th>Sentiment</th><th>Image</th><th>AI Action</th><th>Status</th><th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filteredReturns.length === 0 ? (
-                            <tr><td colSpan={8} style={{ textAlign: 'center', padding: '40px', color: '#9ca3af' }}>No return requests found</td></tr>
-                        ) : filteredReturns.map(ret => (
-                            <tr key={ret.id}>
-                                <td>
-                                    <span style={{ fontWeight: 600, color: accent, cursor: 'pointer' }} onClick={() => setSelectedReturn(ret)}>{ret.id}</span>
-                                    <div style={{ fontSize: '11px', color: '#9ca3af' }}>{formatDate(ret.created_at)}</div>
-                                    {ret.past_return_count >= 3 && <span className="badge badge-danger" style={{ fontSize: '10px', marginTop: '2px' }}>{ret.past_return_count}x repeat</span>}
-                                </td>
-                                <td>
-                                    <div style={{ fontWeight: 500, fontSize: '13px' }}>{ret.product_name}</div>
-                                    <div style={{ fontSize: '12px', color: '#6b7280' }}>{formatCurrency(ret.product_price)}</div>
-                                </td>
-                                <td>
-                                    <span className={`badge ${ret.fraud_level === 'Low' ? 'badge-success' : ret.fraud_level === 'Medium' ? 'badge-warning' : 'badge-danger'}`}>{ret.fraud_level}</span>
-                                    <div style={{ fontSize: '11px', color: '#6b7280', marginTop: '2px' }}>{ret.fraud_score}/100</div>
-                                </td>
-                                <td>
-                                    <SentimentLabel score={ret.sentiment_score} />
-                                    <div style={{ fontSize: '11px', color: '#6b7280' }}>{ret.sentiment_score > 0 ? '+' : ''}{ret.sentiment_score.toFixed(2)}</div>
-                                </td>
-                                <td>
-                                    <DamageLabel classification={ret.damage_classification} />
-                                    {ret.reason_image_mismatch && <span className="badge badge-danger" style={{ fontSize: '10px', marginTop: '2px', display: 'block' }}>Mismatch</span>}
-                                </td>
-                                <td>
-                                    <span style={{ fontSize: '12px', fontWeight: 600, color: ret.recommended_action === 'Approve Refund' ? '#059669' : ret.recommended_action === 'Suggest Exchange' ? '#d97706' : '#dc2626' }}>
-                                        {ret.recommended_action}
-                                    </span>
-                                    <div style={{ fontSize: '11px', color: '#9ca3af' }}>{ret.confidence}% conf.</div>
-                                    {ret.refund_loss_prevented > 0 && <div style={{ fontSize: '10px', color: '#059669', fontWeight: 600, marginTop: '2px' }}>{formatCurrency(ret.refund_loss_prevented)} saved</div>}
-                                </td>
-                                <td>
-                                    <span className={`badge ${ret.status === 'approved' ? 'badge-success' : ret.status === 'rejected' ? 'badge-danger' : ret.status === 'exchanged' ? 'badge-info' : 'badge-warning'}`}>
-                                        {ret.status}
-                                    </span>
-                                </td>
-                                <td>
-                                    {ret.status === 'pending' ? (
-                                        <div style={{ display: 'flex', gap: '4px' }}>
-                                            <button className="btn btn-success btn-sm" onClick={() => handleAction(ret.id, 'approved')} disabled={actionLoading === ret.id} title="Approve">{Icon.check}</button>
-                                            <button className="btn btn-warning btn-sm" onClick={() => handleAction(ret.id, 'exchanged')} disabled={actionLoading === ret.id} title="Exchange">{Icon.refresh}</button>
-                                            <button className="btn btn-danger btn-sm" onClick={() => handleAction(ret.id, 'rejected')} disabled={actionLoading === ret.id} title="Reject">{Icon.x}</button>
-                                        </div>
-                                    ) : (
-                                        <button className="btn btn-ghost btn-sm" onClick={() => setSelectedReturn(ret)}>View</button>
-                                    )}
-                                </td>
-                            </tr>
+                {/* Filters */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '14px', fontWeight: 500, color: '#374151' }}>Filter:</span>
+                        {['all', 'pending', 'approved', 'rejected', 'exchanged'].map(s => (
+                            <button key={s} className={`btn btn-sm ${filterStatus === s ? '' : 'btn-outline'}`}
+                                style={filterStatus === s ? { background: accent, color: 'white', border: `1px solid ${accent}` } : {}}
+                                onClick={() => setFilterStatus(s)}>
+                                {s === 'all' ? 'All' : s.charAt(0).toUpperCase() + s.slice(1)}
+                            </button>
                         ))}
-                    </tbody>
-                </table>
-            </div>
+                    </div>
+                    <span style={{ fontSize: '13px', color: '#9ca3af' }}>{filteredReturns.length} return(s)</span>
+                </div>
+
+                {/* Returns Table */}
+                <div className="table-wrapper">
+                    <table className="table">
+                        <thead>
+                            <tr>
+                                <th>Request</th><th>Product</th><th>Fraud Risk</th><th>Sentiment</th><th>Image</th><th>AI Action</th><th>Status</th><th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {filteredReturns.length === 0 ? (
+                                <tr><td colSpan={8} style={{ textAlign: 'center', padding: '40px', color: '#9ca3af' }}>No return requests found</td></tr>
+                            ) : filteredReturns.map(ret => (
+                                <tr key={ret.id}>
+                                    <td>
+                                        <span style={{ fontWeight: 600, color: accent, cursor: 'pointer' }} onClick={() => setSelectedReturn(ret)}>{ret.id}</span>
+                                        <div style={{ fontSize: '11px', color: '#9ca3af' }}>{formatDate(ret.created_at)}</div>
+                                        {ret.past_return_count >= 3 && <span className="badge badge-danger" style={{ fontSize: '10px', marginTop: '2px' }}>{ret.past_return_count}x repeat</span>}
+                                    </td>
+                                    <td>
+                                        <div style={{ fontWeight: 500, fontSize: '13px' }}>{ret.product_name}</div>
+                                        <div style={{ fontSize: '12px', color: '#6b7280' }}>{formatCurrency(ret.product_price)}</div>
+                                    </td>
+                                    <td>
+                                        <span className={`badge ${ret.fraud_level === 'Low' ? 'badge-success' : ret.fraud_level === 'Medium' ? 'badge-warning' : 'badge-danger'}`}>{ret.fraud_level}</span>
+                                        <div style={{ fontSize: '11px', color: '#6b7280', marginTop: '2px' }}>{ret.fraud_score}/100</div>
+                                    </td>
+                                    <td>
+                                        <SentimentLabel score={ret.sentiment_score} />
+                                        <div style={{ fontSize: '11px', color: '#6b7280' }}>{ret.sentiment_score > 0 ? '+' : ''}{ret.sentiment_score.toFixed(2)}</div>
+                                    </td>
+                                    <td>
+                                        <DamageLabel classification={ret.damage_classification} />
+                                        {ret.reason_image_mismatch && <span className="badge badge-danger" style={{ fontSize: '10px', marginTop: '2px', display: 'block' }}>Mismatch</span>}
+                                    </td>
+                                    <td>
+                                        <span style={{ fontSize: '12px', fontWeight: 600, color: ret.recommended_action === 'Approve Refund' ? '#059669' : ret.recommended_action === 'Suggest Exchange' ? '#d97706' : '#dc2626' }}>
+                                            {ret.recommended_action}
+                                        </span>
+                                        <div style={{ fontSize: '11px', color: '#9ca3af' }}>{ret.confidence}% conf.</div>
+                                        {ret.refund_loss_prevented > 0 && <div style={{ fontSize: '10px', color: '#059669', fontWeight: 600, marginTop: '2px' }}>{formatCurrency(ret.refund_loss_prevented)} saved</div>}
+                                    </td>
+                                    <td>
+                                        <span className={`badge ${ret.status === 'approved' ? 'badge-success' : ret.status === 'rejected' ? 'badge-danger' : ret.status === 'exchanged' ? 'badge-info' : 'badge-warning'}`}>
+                                            {ret.status}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {ret.status === 'pending' ? (
+                                            <div style={{ display: 'flex', gap: '4px' }}>
+                                                <button className="btn btn-success btn-sm" onClick={() => handleAction(ret.id, 'approved')} disabled={actionLoading === ret.id} title="Approve">{Icon.check}</button>
+                                                <button className="btn btn-warning btn-sm" onClick={() => handleAction(ret.id, 'exchanged')} disabled={actionLoading === ret.id} title="Exchange">{Icon.refresh}</button>
+                                                <button className="btn btn-danger btn-sm" onClick={() => handleAction(ret.id, 'rejected')} disabled={actionLoading === ret.id} title="Reject">{Icon.x}</button>
+                                            </div>
+                                        ) : (
+                                            <button className="btn btn-ghost btn-sm" onClick={() => setSelectedReturn(ret)}>View</button>
+                                        )}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+
             {/* Detail Modal */}
             {selectedReturn && (
                 <div className="modal-overlay" onClick={() => setSelectedReturn(null)}>
@@ -578,6 +614,6 @@ export default function DashboardPage() {
                     </div>
                 </div>
             )}
-        </DashboardLayout>
+        </div>
     );
 }

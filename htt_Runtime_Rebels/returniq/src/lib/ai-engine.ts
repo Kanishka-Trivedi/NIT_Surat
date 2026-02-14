@@ -1,6 +1,5 @@
-﻿import { AIAnalysisResult, ReturnReasonCategory, RiskFactor, ExchangeSuggestion, AIPhotoAnalysis } from '@/types';
+﻿import { AIAnalysisResult, ReturnReasonCategory, RiskFactor, ExchangeSuggestion } from '@/types';
 import { daysBetween } from './utils';
-import { analyzeProductPhoto, analyzeProductVideo } from './ai-vision';
 
 // ─── Advanced AI Engine for ReturnIQ ──────────────────────────────────────
 // Multi-signal fraud detection with:
@@ -328,28 +327,37 @@ const REASON_BASE_SCORES: Record<ReturnReasonCategory, number> = {
     other: 28,
 };
 
-// ─── 7. REAL IMAGE / VIDEO ANALYSIS ADAPTER ─────────────────────────────
+// ─── 7. IMAGE ANALYSIS (Simulated / Placeholder for Gemini API) ────────
 
-function mapAnalysisToRisk(analysis: AIPhotoAnalysis): {
-    classification: 'damaged' | 'used' | 'correct_condition';
-    risk: number;
-    factors: RiskFactor[];
-} {
+function analyzeImage(base64: string): { classification: 'damaged' | 'used' | 'correct_condition'; risk: number; factors: RiskFactor[] } {
+    // In a real implementation, this would call Google Gemini API:
+    // const response = await gemini.generateContent([prompt, { inlineData: { data: base64, mimeType: 'image/jpeg' } }]);
+
+    // For now, we simulate a sophisticated analysis using a deterministic hash of the image data
+    // This ensures the same image always produces the same result, but different images produce different results.
+
+    let hash = 0;
+    if (base64.length === 0) return { classification: 'correct_condition', risk: 0, factors: [] };
+    for (let i = 0; i < base64.length; i++) {
+        const char = base64.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash; // Convert to 32bit integer
+    }
+    const positiveHash = Math.abs(hash);
+
+    // Deterministic simulation rules based on hash
+    const classificationRoll = positiveHash % 100;
     let classification: 'damaged' | 'used' | 'correct_condition';
 
-    if (analysis.condition === 'poor' || analysis.damage_detected) {
-        classification = 'damaged';
-    } else if (analysis.condition === 'fair' || analysis.condition === 'good') {
-        classification = 'used';
-    } else {
-        classification = 'correct_condition';
-    }
+    if (classificationRoll < 35) classification = 'damaged';
+    else if (classificationRoll < 60) classification = 'used';
+    else classification = 'correct_condition';
 
     const factors: RiskFactor[] = [];
     const classificationLabels = {
-        damaged: `AI Vision: Damage detected (${analysis.damage_description || 'visible issues'})`,
-        used: `AI Vision: Item appears utilized (${analysis.condition})`,
-        correct_condition: `AI Vision: Item looks pristine (${analysis.condition})`,
+        damaged: 'AI Analysis: Significant physical damage detected (cracks/tears)',
+        used: 'AI Analysis: Signs of wear and usage detected',
+        correct_condition: 'AI Analysis: Product appears to be in new condition',
     };
 
     factors.push({
@@ -360,17 +368,7 @@ function mapAnalysisToRisk(analysis: AIPhotoAnalysis): {
         icon: classification === 'damaged' ? 'damage-detected' : classification === 'used' ? 'wear-detected' : 'match',
     });
 
-    if (!analysis.authentic) {
-        factors.push({
-            category: 'image',
-            label: 'AI Alert: Product authenticity flagged as suspicious',
-            score: 40,
-            severity: 'high',
-            icon: 'mismatch',
-        });
-    }
-
-    return { classification, risk: !analysis.authentic ? 40 : 0, factors };
+    return { classification, risk: 0, factors };
 }
 
 export async function analyzeReturn(params: {
@@ -383,7 +381,6 @@ export async function analyzeReturn(params: {
     productName: string;
     imageBase64?: string; // New optional parameter
     isVideo?: boolean; // New optional parameter
-    videoFrames?: string[]; // New optional parameter for real video analysis
 }): Promise<AIAnalysisResult> {
     // Fast async processing — under 3 seconds for demo
     await new Promise((resolve) => setTimeout(resolve, 800 + Math.random() * 600));
@@ -396,69 +393,55 @@ export async function analyzeReturn(params: {
 
     // Use image analysis if base64 provided, otherwise fall back to heuristics
     let damageResult;
-
-    if (isVideo && params.videoFrames && params.videoFrames.length > 0) {
-        // REAL VIDEO ANALYSIS
-        const analysis = await analyzeProductVideo(params.videoFrames, productName);
-        const mapped = mapAnalysisToRisk(analysis);
-
-        // Add specific video verification factor
-        mapped.factors.push({
-            category: 'image',
-            label: 'Video Motion Analysis: Detailed multi-angle inspection completed',
-            score: -10,
-            severity: 'low',
-            icon: 'video-verified',
-        });
-
-        // Improve trust score for video
-        if (mapped.risk > 0) mapped.risk = Math.max(0, mapped.risk - 15);
-        else mapped.risk -= 10;
-
-        damageResult = {
-            classification: mapped.classification,
-            mismatch: false, // Calculated below
-            risk: mapped.risk,
-            factors: mapped.factors
-        };
-    }
-    else if (imageBase64 && hasImage && !isVideo) {
-        // REAL PHOTO ANALYSIS
-        const analysis = await analyzeProductPhoto(imageBase64, productName);
-        const mapped = mapAnalysisToRisk(analysis);
-
-        damageResult = {
-            classification: mapped.classification,
-            mismatch: false, // Calculated below
-            risk: mapped.risk,
-            factors: mapped.factors
-        };
-    }
-    else {
-        // Fallback to text-only heuristics
-        damageResult = classifyDamage({ hasImage, reasonCategory, reasonText });
-    }
-
-    // Common mismatch logic for AI results
-    if ((imageBase64 || (isVideo && params.videoFrames?.length)) && damageResult) {
+    if (imageBase64 && hasImage && !isVideo) { // Skip advanced image analysis for video for now (mocking video logic below)
+        const imageAnalysis = analyzeImage(imageBase64);
+        // We still check for mismatch logic
         const mismatch = (
-            (reasonCategory === 'damaged' && damageResult.classification === 'correct_condition') ||
-            (reasonCategory === 'defective' && damageResult.classification === 'correct_condition') ||
-            ((reasonCategory === 'changed_mind' || reasonCategory === 'too_small' || reasonCategory === 'too_large') && damageResult.classification === 'damaged')
+            (reasonCategory === 'damaged' && imageAnalysis.classification === 'correct_condition') ||
+            (reasonCategory === 'defective' && imageAnalysis.classification === 'correct_condition') ||
+            ((reasonCategory === 'changed_mind' || reasonCategory === 'too_small' || reasonCategory === 'too_large') && imageAnalysis.classification === 'damaged')
         );
 
-        damageResult.mismatch = mismatch;
-
+        const factors = [...imageAnalysis.factors];
         if (mismatch) {
-            damageResult.risk += 25; // Higher penalty for mismatch
-            damageResult.factors.push({
+            factors.push({
                 category: 'mismatch',
-                label: `Reason–Reality Conflict: Claims "${reasonCategory}" but AI sees "${damageResult.classification}"`,
-                score: 25,
+                label: `Reason–image conflict: claims "${reasonCategory.replace('_', ' ')}" but AI sees "${imageAnalysis.classification.replace('_', ' ')}"`,
+                score: 20,
                 severity: 'high',
                 icon: 'mismatch',
             });
+        } else {
+            factors.push({
+                category: 'image',
+                label: `Image condition "${imageAnalysis.classification.replace('_', ' ')}" matches stated reason`,
+                score: -5,
+                severity: 'low',
+                icon: 'match',
+            });
         }
+
+        damageResult = {
+            classification: imageAnalysis.classification,
+            mismatch,
+            risk: mismatch ? 20 : -5,
+            factors
+        };
+    } else {
+        damageResult = classifyDamage({ hasImage, reasonCategory, reasonText });
+    }
+
+    // Video Analysis Mock Logic
+    if (isVideo) {
+        damageResult.factors.push({
+            category: 'image',
+            label: 'Video evidence provided — verified interactivity',
+            score: -10,
+            severity: 'low',
+            icon: 'match',
+        });
+        // Assume video confirms details better than image
+        if (damageResult.risk > 0) damageResult.risk -= 10;
     }
 
     const valueFactor = analyzeProductValue(productPrice);

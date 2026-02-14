@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { KiranaStore, KiranaDashboardStats, BrandSession } from '@/types';
-import DashboardLayout from '@/components/DashboardLayout';
 
 const MOCK_DROPOFFS = [
     { id: 'KD-A1B2', returnId: 'RET-A1B2C3', productName: 'Silk Blouse', kiranaName: 'Sharma General Store', status: 'completed', aiDecision: 'Exchange', refundSaved: 3399, droppedAt: '2026-02-14T09:15:00Z' },
@@ -48,7 +47,7 @@ export default function KiranaDashboardPage() {
     }, []);
 
     useEffect(() => {
-        const stored = sessionStorage.getItem('returniq_session');
+        const stored = sessionStorage.getItem('brand_session');
         if (!stored) { router.push('/dashboard/login'); return; }
         setSession(JSON.parse(stored));
         fetchStores();
@@ -77,9 +76,8 @@ export default function KiranaDashboardPage() {
 
     if (loading || !session) {
         return (
-            <div className="loading-overlay" style={{ minHeight: '100vh' }}>
-                <div className="spinner spinner-lg"></div>
-                <p className="loading-text">Loading Kirana network...</p>
+            <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc' }}>
+                <div style={{ width: '40px', height: '40px', border: '3px solid #e5e7eb', borderTopColor: '#4f46e5', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
             </div>
         );
     }
@@ -87,8 +85,44 @@ export default function KiranaDashboardPage() {
     const maxBar = Math.max(...WEEKLY_DATA.map(d => d.drops), 1);
 
     return (
-        <DashboardLayout session={session}>
-            <div style={{ padding: '32px' }}>
+        <div style={{ display: 'flex', minHeight: '100vh', background: '#f8fafc' }}>
+            {/* Sidebar */}
+            <aside style={{
+                width: sidebarCollapsed ? '64px' : '240px', background: '#111827',
+                transition: 'width 0.3s', display: 'flex', flexDirection: 'column',
+                position: 'sticky', top: 0, height: '100vh', overflow: 'hidden', flexShrink: 0,
+            }}>
+                <div style={{ padding: '20px 16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 800, fontSize: '12px', flexShrink: 0 }}>RQ</div>
+                    {!sidebarCollapsed && <span style={{ color: 'white', fontWeight: 700, fontSize: '16px' }}>Return<span style={{ color: '#818cf8' }}>IQ</span></span>}
+                </div>
+                <nav style={{ flex: 1, padding: '0 8px' }}>
+                    {[
+                        { icon: '📊', label: 'Dashboard', path: '/dashboard' },
+                        { icon: '🏪', label: 'Kirana Network', path: '/dashboard/kirana', active: true },
+                        { icon: '♻️', label: 'Resale Pipeline', path: '/dashboard/resale' },
+                        { icon: '👤', label: 'Partner Portal', path: '/kirana-partner' },
+                        { icon: '⚙️', label: 'Settings', path: '/dashboard/settings' },
+                    ].map(item => (
+                        <a key={item.path} href={item.path} style={{
+                            display: 'flex', alignItems: 'center', gap: '10px',
+                            padding: '10px 12px', borderRadius: '8px', fontSize: '14px',
+                            color: item.active ? 'white' : '#9ca3af',
+                            background: item.active ? 'rgba(79,70,229,0.2)' : 'transparent',
+                            textDecoration: 'none', marginBottom: '2px', fontWeight: item.active ? 600 : 400,
+                        }}>
+                            <span style={{ fontSize: '16px' }}>{item.icon}</span>
+                            {!sidebarCollapsed && <span>{item.label}</span>}
+                        </a>
+                    ))}
+                </nav>
+                <button onClick={() => setSidebarCollapsed(!sidebarCollapsed)} style={{
+                    padding: '12px', background: 'none', border: 'none', color: '#6b7280', cursor: 'pointer', fontSize: '12px',
+                }}>{sidebarCollapsed ? '→' : '← Collapse'}</button>
+            </aside>
+
+            {/* Main */}
+            <main style={{ flex: 1, padding: '32px', overflowY: 'auto' }}>
                 {/* Header */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
                     <div>
@@ -272,7 +306,7 @@ export default function KiranaDashboardPage() {
                         </div>
                     ))}
                 </div>
-            </div>
-        </DashboardLayout>
+            </main>
+        </div>
     );
 }

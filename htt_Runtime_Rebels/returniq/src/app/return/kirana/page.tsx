@@ -74,17 +74,13 @@ function KiranaFlowContent() {
             const existing = JSON.parse(localStorage.getItem('returniq_kirana_dropoffs') || '[]');
             localStorage.setItem('returniq_kirana_dropoffs', JSON.stringify([newDropoff, ...existing]));
 
-            // Reward Green Credits for Swap
-            const currentWallet = parseInt(localStorage.getItem('returniq_wallet') || '150');
-            localStorage.setItem('returniq_wallet', (currentWallet + 50).toString());
-
             // Add notification
             setNotifications(prev => [...prev, {
                 id: `N-${Date.now()}-CONFIRM`,
                 type: 'success',
-                icon: '🪙',
-                title: 'Exchange Confirmed (+50 Coins)',
-                message: 'Transaction saved. You earned 50 Green Credits!',
+                icon: '🎉',
+                title: 'Exchange Confirmed',
+                message: 'Transaction saved. Kirana owner notified.',
                 channel: 'App',
                 timestamp: new Date().toISOString()
             } as any]);
@@ -162,21 +158,8 @@ function KiranaFlowContent() {
         setScanResult(data);
         setStep(4);
 
-        // Reward Green Credits for Eco-Dropoff
-        const currentWallet = parseInt(localStorage.getItem('returniq_wallet') || '150');
-        localStorage.setItem('returniq_wallet', (currentWallet + 50).toString());
-
         // Stagger notifications
         if (data.notifications) {
-            data.notifications.push({
-                id: `N-${Date.now()}-COINS`,
-                type: 'success',
-                icon: '🪙',
-                title: 'Eco-Dropoff Reward',
-                message: 'You earned 50 Green Credits for choosing Kirana Dropoff!',
-                channel: 'App',
-                timestamp: new Date().toISOString()
-            });
             data.notifications.forEach((n: KiranaNotification, i: number) => {
                 setTimeout(() => {
                     setNotifications(prev => [...prev, n]);
