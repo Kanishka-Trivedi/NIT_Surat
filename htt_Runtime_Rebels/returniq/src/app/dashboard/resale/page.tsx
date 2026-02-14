@@ -228,8 +228,9 @@ export default function ResaleDashboardPage() {
                             </div>
                         </div>
                     </div>
-                )}
+                </div>
+            )}
 
-            </div>
-            );
+        </div>
+    );
 }
