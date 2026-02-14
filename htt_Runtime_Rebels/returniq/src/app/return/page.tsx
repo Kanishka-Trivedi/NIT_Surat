@@ -5,6 +5,10 @@ import { useRouter } from 'next/navigation';
 import { Order, RETURN_REASONS, ReturnReasonCategory, SocialProofData } from '@/types';
 import { formatCurrency, formatDate } from '@/lib/utils';
 
+function IconBrain({ className, width, height }: { className?: string; width?: string; height?: string }) {
+    return <svg className={className} width={width || "24"} height={height || "24"} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z" /><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z" /></svg>;
+}
+
 export default function ReturnPage() {
     const router = useRouter();
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -15,6 +19,7 @@ export default function ReturnPage() {
     const [reasonText, setReasonText] = useState('');
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const [base64Image, setBase64Image] = useState<string | null>(null);
     const [submitting, setSubmitting] = useState(false);
     const [aiStep, setAiStep] = useState(0);
     const [error, setError] = useState('');
@@ -41,6 +46,16 @@ export default function ReturnPage() {
             setSelectedFile(file);
             const url = URL.createObjectURL(file);
             setPreviewUrl(url);
+
+            // Convert to base64
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const base64String = reader.result as string;
+                // Remove data URL prefix (e.g. "data:image/jpeg;base64,")
+                const base64Data = base64String.split(',')[1];
+                setBase64Image(base64Data);
+            };
+            reader.readAsDataURL(file);
         }
     };
 
@@ -70,6 +85,7 @@ export default function ReturnPage() {
                     return_reason_category: reasonCategory,
                     order_date: order.order_date,
                     image_url: selectedFile ? 'uploaded' : null,
+                    image_base64: base64Image,
                 }),
             });
 
@@ -143,7 +159,7 @@ export default function ReturnPage() {
 
                 {error && (
                     <div className="alert alert-error">
-                        <span>⚠️</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2" style={{ flexShrink: 0 }}><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
                         {error}
                     </div>
                 )}
@@ -218,7 +234,7 @@ export default function ReturnPage() {
                         {socialProof && (
                             <div className="social-proof-card">
                                 <div className="social-proof-header">
-                                    <span className="social-proof-icon">🤝</span>
+                                    <span className="social-proof-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 00-3-3.87" /><path d="M16 3.13a4 4 0 010 7.75" /></svg></span>
                                     <div>
                                         <div className="social-proof-title">You're Not Alone</div>
                                         <div className="social-proof-subtitle">
@@ -258,7 +274,7 @@ export default function ReturnPage() {
                                 </div>
 
                                 <div className="social-proof-cta">
-                                    <span>💡</span>
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#065f46" strokeWidth="2"><path d="M12 2a7 7 0 017 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 01-2 2h-4a2 2 0 01-2-2v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 017-7z" /></svg>
                                     Most customers who exchanged were happier with their new product!
                                 </div>
                             </div>
@@ -308,7 +324,7 @@ export default function ReturnPage() {
                                 </div>
                             ) : (
                                 <div>
-                                    <div className="upload-zone-icon">📷</div>
+                                    <div className="upload-zone-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" /><circle cx="12" cy="13" r="4" /></svg></div>
                                     <div className="upload-zone-text">Click to upload a photo</div>
                                     <div className="upload-zone-hint">JPG, PNG, WEBP up to 10MB</div>
                                 </div>
@@ -345,7 +361,7 @@ export default function ReturnPage() {
                         <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
                             <button className="btn btn-outline" onClick={() => setStep(2)}>← Back</button>
                             <button className="btn btn-primary" onClick={handleSubmit} disabled={submitting}>
-                                Submit Return Request 🚀
+                                Submit Return Request
                             </button>
                         </div>
                     </div>
@@ -353,26 +369,38 @@ export default function ReturnPage() {
 
                 {/* Step 4: AI Processing */}
                 {step === 4 && (
-                    <div className="card" style={{ padding: '32px' }}>
-                        <div className="ai-processing">
-                            <div className="ai-brain">🧠</div>
-                            <div className="ai-processing-text">AI Intelligence Processing</div>
-                            <div className="ai-processing-sub">
-                                Running multi-signal fraud analysis on your return request.
+                    <div className="card" style={{ padding: '40px', textAlign: 'center' }}>
+                        <div className="ai-processing-container">
+                            {/* Scanning Animation */}
+                            <div className="ai-scanner">
+                                {previewUrl ? (
+                                    <div className="ai-scan-image-wrapper">
+                                        <img src={previewUrl} alt="Analyzing" className="ai-scan-image" />
+                                        <div className="ai-scan-line"></div>
+                                        <div className="ai-scan-overlay"></div>
+                                    </div>
+                                ) : (
+                                    <div className="ai-brain-pulse">
+                                        <IconBrain className="text-indigo-600" width="64" height="64" />
+                                    </div>
+                                )}
                             </div>
+
+                            <h3 className="ai-processing-title">AI Intelligence Processing</h3>
+                            <p className="ai-processing-sub">
+                                ReturnIQ is analyzing {selectedFile ? 'product condition' : 'return patterns'} and calculating risk score...
+                            </p>
+
                             <div className="ai-steps">
-                                {[
-                                    '🔍 Analyzing sentiment & return reason...',
-                                    '🖼️ Classifying product condition from image...',
-                                    '📈 Checking return frequency & history...',
-                                    '💡 Generating exchange recommendation...',
-                                ].map((text, i) => (
+                                {['Analyzing return reason & sentiment...', 'Inspecting product image for damage...', 'Checking customer return history...', 'Calculating fraud risk score...'].map((text, i) => (
                                     <div
                                         key={i}
-                                        className={`ai-step ${aiStep > i + 1 ? 'done' : ''} ${aiStep === i + 1 ? 'active' : ''}`}
+                                        className={`ai-step-item ${aiStep > i ? 'completed' : ''} ${aiStep === i + 1 ? 'active' : ''}`}
                                     >
-                                        <span>{aiStep > i + 1 ? '✓' : aiStep === i + 1 ? '⚡' : '○'}</span>
-                                        {text}
+                                        <div className="ai-step-icon">
+                                            {aiStep > i ? <span style={{ color: '#059669' }}>✓</span> : aiStep === i + 1 ? <span className="spinner-sm"></span> : '○'}
+                                        </div>
+                                        <span className="ai-step-text">{text}</span>
                                     </div>
                                 ))}
                             </div>

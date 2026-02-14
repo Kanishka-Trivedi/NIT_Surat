@@ -2020,3 +2020,243 @@ body {
   font-weight: 600;
   color: #065f46;
 }
+
+/* ─── AI Scanner Animation ───────────────────────────── */
+.ai-processing-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.ai-scanner {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid var(--gray-200);
+  padding: 8px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.ai-scan-image-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.ai-scan-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.ai-scan-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(79, 70, 229, 0.1);
+  mix-blend-mode: overlay;
+}
+
+.ai-scan-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, #00ff88, transparent);
+  box-shadow: 0 0 10px #00ff88;
+  animation: scan 2s linear infinite;
+  z-index: 10;
+}
+
+@keyframes scan {
+  0% {
+    top: -10%;
+  }
+
+  100% {
+    top: 110%;
+  }
+}
+
+.ai-brain-pulse {
+  animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.7);
+  }
+
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 10px rgba(79, 70, 229, 0);
+  }
+
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(79, 70, 229, 0);
+  }
+}
+
+.ai-processing-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin-bottom: 8px;
+}
+
+.ai-processing-sub {
+  font-size: 14px;
+  color: var(--gray-500);
+  margin-bottom: 32px;
+  max-width: 320px;
+}
+
+.ai-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+}
+
+.ai-step-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  background: white;
+  border: 1px solid var(--gray-200);
+  transition: all 0.3s ease;
+  opacity: 0.5;
+}
+
+.ai-step-item.active {
+  opacity: 1;
+  border-color: var(--primary);
+  background: var(--primary-light);
+  transform: translateX(4px);
+  box-shadow: var(--shadow-sm);
+}
+
+.ai-step-item.completed {
+  opacity: 1;
+  border-color: var(--success);
+  background: var(--success-light);
+}
+
+.ai-step-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.ai-step-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gray-700);
+}
+
+.spinner-sm {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--primary);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* ─── Mobile Responsiveness ──────────────────────────── */
+@media (max-width: 768px) {
+  .hero h1 {
+    font-size: 32px;
+  }
+
+  .hero p {
+    font-size: 16px;
+    padding: 0 16px;
+  }
+
+  .navbar-inner {
+    padding: 0 16px;
+  }
+
+  .ai-result-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .steps {
+    flex-direction: row;
+    overflow-x: auto;
+    padding-bottom: 12px;
+  }
+
+  .step-label {
+    display: none;
+  }
+
+  .step.active .step-label {
+    display: block;
+  }
+
+  .container {
+    padding: 24px 16px !important;
+  }
+
+  .card {
+    padding: 20px !important;
+  }
+
+  /* Stack buttons on mobile */
+  .card>div[style*="justify-content: flex-end"] {
+    flex-direction: column-reverse;
+  }
+
+  .card>div[style*="justify-content: flex-end"] button {
+    width: 100%;
+  }
+
+  /* Simplify order card on mobile */
+  .order-card {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .order-image {
+    margin: 0 auto;
+  }
+
+  .order-info {
+    width: 100%;
+  }
+
+  /* Confirmation page grid */
+  .ai-card .ai-result-grid+div>div[style*="grid-template-columns"] {
+    grid-template-columns: 1fr !important;
+  }
+}

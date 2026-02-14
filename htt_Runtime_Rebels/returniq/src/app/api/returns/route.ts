@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
-        const { order_id, customer_email, product_name, product_price, return_reason, return_reason_category, order_date, image_url, brand_id } = body;
+        const { order_id, customer_email, product_name, product_price, return_reason, return_reason_category, order_date, image_url, image_base64, brand_id } = body;
 
         if (!order_id || !customer_email || !return_reason || !return_reason_category) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -28,6 +28,7 @@ export async function POST(request: NextRequest) {
             hasImage: !!image_url,
             customerEmail: customer_email,
             productName: product_name || 'Unknown Product',
+            imageBase64: image_base64,
         });
 
         const newReturn = {

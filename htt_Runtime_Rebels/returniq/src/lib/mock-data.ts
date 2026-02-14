@@ -74,11 +74,11 @@ export const INITIAL_RETURNS: ReturnRequest[] = [
         reason_image_mismatch: false, past_return_count: 1, refund_loss_prevented: 2799,
         exchange_suggestion: { type: 'product_swap', title: 'Color Exchange: Silk Blouse (Navy)', description: 'Send correct navy variant.', savings: 2799 },
         risk_factors: [
-            { category: 'frequency', label: 'Normal return history — 1 past return(s)', score: 3, severity: 'low', icon: '📋' },
-            { category: 'sentiment', label: 'Neutral/positive tone', score: -2, severity: 'low', icon: '😊' },
-            { category: 'image', label: 'Image matches stated reason', score: -5, severity: 'low', icon: '✅' },
-            { category: 'value', label: 'Budget item (₹3999)', score: -3, severity: 'low', icon: '🏷️' },
-            { category: 'timing', label: 'Normal return window', score: -2, severity: 'low', icon: '📆' },
+            { category: 'frequency', label: 'Normal return history — 1 past return(s)', score: 3, severity: 'low', icon: 'low-freq' },
+            { category: 'sentiment', label: 'Neutral/positive tone', score: -2, severity: 'low', icon: 'neutral' },
+            { category: 'image', label: 'Image matches stated reason', score: -5, severity: 'low', icon: 'match' },
+            { category: 'value', label: 'Budget item (₹3999)', score: -3, severity: 'low', icon: 'low-val' },
+            { category: 'timing', label: 'Normal return window', score: -2, severity: 'low', icon: 'normal' },
         ],
         ai_reasoning: '═══ AI FRAUD INTELLIGENCE REPORT ═══\n\nVERDICT: SUGGEST EXCHANGE | Risk: Low (22/100) | Confidence: 88%',
     },
@@ -91,13 +91,13 @@ export const INITIAL_RETURNS: ReturnRequest[] = [
         reason_image_mismatch: false, past_return_count: 5, refund_loss_prevented: 15999,
         exchange_suggestion: null,
         risk_factors: [
-            { category: 'frequency', label: 'Serial returner — 5 past returns', score: 22, severity: 'high', icon: '🔁' },
-            { category: 'sentiment', label: 'Hostile sentiment (legal threats, demands refund)', score: 18, severity: 'high', icon: '😤' },
-            { category: 'image', label: 'No image uploaded', score: 12, severity: 'medium', icon: '📷' },
-            { category: 'value', label: 'Premium item (₹15999)', score: 18, severity: 'high', icon: '💎' },
-            { category: 'timing', label: 'Normal return window', score: -2, severity: 'low', icon: '📆' },
+            { category: 'frequency', label: 'Serial returner — 5 past returns', score: 22, severity: 'high', icon: 'high-freq' },
+            { category: 'sentiment', label: 'Hostile sentiment (legal threats, demands refund)', score: 18, severity: 'high', icon: 'negative' },
+            { category: 'image', label: 'No image uploaded', score: 12, severity: 'medium', icon: 'no-image' },
+            { category: 'value', label: 'Premium item (₹15999)', score: 18, severity: 'high', icon: 'high-val' },
+            { category: 'timing', label: 'Normal return window', score: -2, severity: 'low', icon: 'normal' },
         ],
-        ai_reasoning: '═══ AI FRAUD INTELLIGENCE REPORT ═══\n\nVERDICT: REJECT | Risk: High (78/100) | Confidence: 94%\n💰 Refund loss prevented: ₹15,999',
+        ai_reasoning: '═══ AI FRAUD INTELLIGENCE REPORT ═══\n\nVERDICT: REJECT | Risk: High (78/100) | Confidence: 94%\nRefund loss prevented: ₹15,999',
     },
     {
         id: 'RET-G7H8I9', order_id: 'ORD-10222', customer_email: 'tom@example.com', product_name: 'Denim Jeans Slim Fit',
@@ -108,13 +108,13 @@ export const INITIAL_RETURNS: ReturnRequest[] = [
         reason_image_mismatch: false, past_return_count: 0, refund_loss_prevented: 2974,
         exchange_suggestion: { type: 'size_replacement', title: 'Size Replacement: Jeans (Medium)', description: 'Replace with correct size.', savings: 2974 },
         risk_factors: [
-            { category: 'frequency', label: 'First-time return', score: -5, severity: 'low', icon: '📋' },
-            { category: 'sentiment', label: 'Positive tone', score: -2, severity: 'low', icon: '😊' },
-            { category: 'image', label: 'Image matches reason', score: -5, severity: 'low', icon: '✅' },
-            { category: 'value', label: 'Budget item (₹3499)', score: -3, severity: 'low', icon: '🏷️' },
-            { category: 'timing', label: 'Normal return window', score: -2, severity: 'low', icon: '📆' },
+            { category: 'frequency', label: 'First-time return', score: -5, severity: 'low', icon: 'low-freq' },
+            { category: 'sentiment', label: 'Positive tone', score: -2, severity: 'low', icon: 'positive' },
+            { category: 'image', label: 'Image matches reason', score: -5, severity: 'low', icon: 'match' },
+            { category: 'value', label: 'Budget item (₹3499)', score: -3, severity: 'low', icon: 'low-val' },
+            { category: 'timing', label: 'Normal return window', score: -2, severity: 'low', icon: 'normal' },
         ],
-        ai_reasoning: '═══ AI FRAUD INTELLIGENCE REPORT ═══\n\nVERDICT: SUGGEST EXCHANGE | Risk: Low (10/100) | Confidence: 92%\n💰 Savings: ₹2,974',
+        ai_reasoning: '═══ AI FRAUD INTELLIGENCE REPORT ═══\n\nVERDICT: SUGGEST EXCHANGE | Risk: Low (10/100) | Confidence: 92%\nSavings: ₹2,974',
     },
     // TechVault returns
     {
@@ -126,11 +126,11 @@ export const INITIAL_RETURNS: ReturnRequest[] = [
         reason_image_mismatch: false, past_return_count: 1, refund_loss_prevented: 0,
         exchange_suggestion: { type: 'product_swap', title: 'Replacement: Same keyboard (new)', description: 'Ship replacement.', savings: 4799 },
         risk_factors: [
-            { category: 'frequency', label: 'Normal return history — 1 past return(s)', score: 3, severity: 'low', icon: '📋' },
-            { category: 'sentiment', label: 'Positive tone — describes troubleshooting', score: -2, severity: 'low', icon: '😊' },
-            { category: 'image', label: 'Damage confirmed in image', score: -5, severity: 'low', icon: '✅' },
-            { category: 'value', label: 'Mid-range item (₹7999)', score: 8, severity: 'medium', icon: '💰' },
-            { category: 'timing', label: 'Normal return window', score: -2, severity: 'low', icon: '📆' },
+            { category: 'frequency', label: 'Normal return history — 1 past return(s)', score: 3, severity: 'low', icon: 'low-freq' },
+            { category: 'sentiment', label: 'Positive tone — describes troubleshooting', score: -2, severity: 'low', icon: 'positive' },
+            { category: 'image', label: 'Damage confirmed in image', score: -5, severity: 'low', icon: 'match' },
+            { category: 'value', label: 'Mid-range item (₹7999)', score: 8, severity: 'medium', icon: 'med-val' },
+            { category: 'timing', label: 'Normal return window', score: -2, severity: 'low', icon: 'normal' },
         ],
         ai_reasoning: '═══ AI FRAUD INTELLIGENCE REPORT ═══\n\nVERDICT: APPROVE REFUND | Risk: Low (12/100) | Confidence: 94%',
     },
@@ -144,13 +144,13 @@ export const INITIAL_RETURNS: ReturnRequest[] = [
         reason_image_mismatch: true, past_return_count: 6, refund_loss_prevented: 11999,
         exchange_suggestion: null,
         risk_factors: [
-            { category: 'frequency', label: 'Serial returner — 6 past returns', score: 22, severity: 'high', icon: '🔁' },
-            { category: 'sentiment', label: 'Mildly negative tone', score: 6, severity: 'medium', icon: '😐' },
-            { category: 'mismatch', label: 'Claims "damaged" but image shows correct condition', score: 20, severity: 'high', icon: '🔍' },
-            { category: 'value', label: 'Mid-range item (₹11999)', score: 8, severity: 'medium', icon: '💰' },
-            { category: 'timing', label: 'Normal return window', score: -2, severity: 'low', icon: '📆' },
+            { category: 'frequency', label: 'Serial returner — 6 past returns', score: 22, severity: 'high', icon: 'high-freq' },
+            { category: 'sentiment', label: 'Mildly negative tone', score: 6, severity: 'medium', icon: 'neutral' },
+            { category: 'mismatch', label: 'Claims "damaged" but image shows correct condition', score: 20, severity: 'high', icon: 'mismatch' },
+            { category: 'value', label: 'Mid-range item (₹11999)', score: 8, severity: 'medium', icon: 'med-val' },
+            { category: 'timing', label: 'Normal return window', score: -2, severity: 'low', icon: 'normal' },
         ],
-        ai_reasoning: '═══ AI FRAUD INTELLIGENCE REPORT ═══\n\n⚠️ MISMATCH DETECTED\nVERDICT: REJECT | Risk: High (65/100) | Confidence: 91%\n💰 Refund loss prevented: ₹11,999',
+        ai_reasoning: '═══ AI FRAUD INTELLIGENCE REPORT ═══\n\nWARN: MISMATCH DETECTED\nVERDICT: REJECT | Risk: High (65/100) | Confidence: 91%\nRefund loss prevented: ₹11,999',
     },
     // FitSphere returns
     {
@@ -162,19 +162,19 @@ export const INITIAL_RETURNS: ReturnRequest[] = [
         reason_image_mismatch: false, past_return_count: 3, refund_loss_prevented: 1749,
         exchange_suggestion: { type: 'product_swap', title: 'Product Swap: Resistance Band Set', description: 'Offer alternative product.', savings: 1749 },
         risk_factors: [
-            { category: 'frequency', label: 'Above-average return frequency — 3 past returns', score: 14, severity: 'medium', icon: '📋' },
-            { category: 'sentiment', label: 'Suspiciously brief reason', score: 8, severity: 'medium', icon: '😐' },
-            { category: 'image', label: 'No image uploaded', score: 12, severity: 'medium', icon: '📷' },
-            { category: 'value', label: 'Budget item (₹2499)', score: -3, severity: 'low', icon: '🏷️' },
-            { category: 'timing', label: 'Normal return window', score: -2, severity: 'low', icon: '📆' },
+            { category: 'frequency', label: 'Above-average return frequency — 3 past returns', score: 14, severity: 'medium', icon: 'med-freq' },
+            { category: 'sentiment', label: 'Suspiciously brief reason', score: 8, severity: 'medium', icon: 'neutral' },
+            { category: 'image', label: 'No image uploaded', score: 12, severity: 'medium', icon: 'no-image' },
+            { category: 'value', label: 'Budget item (₹2499)', score: -3, severity: 'low', icon: 'low-val' },
+            { category: 'timing', label: 'Normal return window', score: -2, severity: 'low', icon: 'normal' },
         ],
-        ai_reasoning: '═══ AI FRAUD INTELLIGENCE REPORT ═══\n\nVERDICT: SUGGEST EXCHANGE | Risk: Medium (48/100) | Confidence: 78%\n💰 Savings: ₹1,749',
+        ai_reasoning: '═══ AI FRAUD INTELLIGENCE REPORT ═══\n\nVERDICT: SUGGEST EXCHANGE | Risk: Medium (48/100) | Confidence: 78% | Savings: ₹1,749',
     },
 ];
 
 // ─── In-Memory Store ──────────────────────────────────────────────────
-let returnRequests: ReturnRequest[] = [...INITIAL_RETURNS];
-let brands: Brand[] = [...BRANDS];
+const returnRequests: ReturnRequest[] = [...INITIAL_RETURNS];
+const brands: Brand[] = [...BRANDS];
 
 export function getOrders(): Order[] { return MOCK_ORDERS; }
 

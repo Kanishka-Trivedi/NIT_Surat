@@ -1,7 +1,7 @@
-import { AIAnalysisResult, ReturnReasonCategory, RiskFactor, ExchangeSuggestion } from '@/types';
+﻿import { AIAnalysisResult, ReturnReasonCategory, RiskFactor, ExchangeSuggestion } from '@/types';
 import { daysBetween } from './utils';
 
-// ─── Advanced AI Engine for ReturnIQ ──────────────────────────────────
+// ─── Advanced AI Engine for ReturnIQ ──────────────────────────────────────
 // Multi-signal fraud detection with:
 //  • Past return frequency analysis
 //  • NLP sentiment scoring on return reason text
@@ -10,7 +10,7 @@ import { daysBetween } from './utils';
 //  • Smart exchange recommendations
 //  • Refund loss prevention calculation
 
-// ─── 1. RETURN FREQUENCY ANALYSIS ────────────────────────────────────
+// ─── 1. RETURN FREQUENCY ANALYSIS ─────────────────────────────────────────
 // Simulates customer return history database lookup
 
 const CUSTOMER_HISTORY: Record<string, number> = {
@@ -55,11 +55,11 @@ function analyzeReturnFrequency(email: string): { risk: number; count: number; f
     return {
         risk,
         count,
-        factor: { category: 'frequency', label, score: risk, severity, icon: risk >= 14 ? '🔁' : '📋' },
+        factor: { category: 'frequency', label, score: risk, severity, icon: risk >= 14 ? 'high-freq' : 'low-freq' },
     };
 }
 
-// ─── 2. SENTIMENT ANALYSIS ──────────────────────────────────────────
+// ─── 2. SENTIMENT ANALYSIS ────────────────────────────────────────────────
 // NLP-style keyword sentiment scoring on return reason text
 
 function analyzeSentiment(reason: string): { score: number; risk: number; factor: RiskFactor } {
@@ -91,20 +91,20 @@ function analyzeSentiment(reason: string): { score: number; risk: number; factor
     for (const { pattern, weight, tag } of negativeSignals) {
         if (pattern.test(reason)) {
             sentimentRaw += weight;
-            matchedTags.push(`⚠ ${tag}`);
+            matchedTags.push(`WARN: ${tag}`);
         }
     }
     for (const { pattern, weight, tag } of positiveSignals) {
         if (pattern.test(reason)) {
             sentimentRaw += weight;
-            matchedTags.push(`✓ ${tag}`);
+            matchedTags.push(`OK: ${tag}`);
         }
     }
 
     // Penalize very short vague reasons
     if (reason.length < 20) {
         sentimentRaw -= 12;
-        matchedTags.push('⚠ suspiciously brief reason');
+        matchedTags.push('WARN: suspiciously brief reason');
     } else if (reason.length > 100) {
         sentimentRaw += 5;
     }
@@ -117,7 +117,7 @@ function analyzeSentiment(reason: string): { score: number; risk: number; factor
 
     const severity: RiskFactor['severity'] = score < -0.4 ? 'high' : score < 0 ? 'medium' : 'low';
     const label = score < -0.4
-        ? `Hostile sentiment detected (${matchedTags.filter(t => t.startsWith('⚠')).join(', ')})`
+        ? `Hostile sentiment detected (${matchedTags.filter(t => t.startsWith('WARN')).join(', ')})`
         : score < 0
             ? `Mildly negative tone (${matchedTags.slice(0, 2).join(', ')})`
             : `Neutral/positive tone — customer appears genuine`;
@@ -125,11 +125,11 @@ function analyzeSentiment(reason: string): { score: number; risk: number; factor
     return {
         score,
         risk,
-        factor: { category: 'sentiment', label, score: risk, severity, icon: score < -0.4 ? '😤' : score < 0 ? '😐' : '😊' },
+        factor: { category: 'sentiment', label, score: risk, severity, icon: score < -0.4 ? 'negative' : score < 0 ? 'neutral' : 'positive' },
     };
 }
 
-// ─── 3. DAMAGE CLASSIFICATION ───────────────────────────────────────
+// ─── 3. DAMAGE CLASSIFICATION ─────────────────────────────────────────────
 // Simulates image AI analysis (damaged / used / correct condition)
 
 const REASON_TO_EXPECTED_DAMAGE: Record<ReturnReasonCategory, 'damaged' | 'used' | 'correct_condition'> = {
@@ -162,7 +162,7 @@ function classifyDamage(params: {
             label: 'No product image uploaded — cannot verify condition',
             score: 12,
             severity: 'medium',
-            icon: '📷',
+            icon: 'no-image',
         });
         return { classification: 'no_image', mismatch: false, risk: 12, factors };
     }
@@ -206,7 +206,7 @@ function classifyDamage(params: {
             label: `Reason–image conflict: claims "${reasonCategory.replace('_', ' ')}" but image shows "${classification.replace('_', ' ')}"`,
             score: 20,
             severity: 'high',
-            icon: '🔍',
+            icon: 'mismatch',
         });
     } else {
         risk = -5;
@@ -215,7 +215,7 @@ function classifyDamage(params: {
             label: `Image condition "${classification.replace('_', ' ')}" matches stated reason`,
             score: -5,
             severity: 'low',
-            icon: '✅',
+            icon: 'match',
         });
     }
 
@@ -230,36 +230,36 @@ function classifyDamage(params: {
         label: `Image AI: ${classificationLabels[classification]}`,
         score: 0,
         severity: classification === 'damaged' ? 'high' : classification === 'used' ? 'medium' : 'low',
-        icon: classification === 'damaged' ? '💥' : classification === 'used' ? '👟' : '✨',
+        icon: classification === 'damaged' ? 'damage-detected' : classification === 'used' ? 'wear-detected' : 'good-condition',
     });
 
     return { classification, mismatch, risk, factors };
 }
 
-// ─── 4. VALUE & TIMING ANALYSIS ─────────────────────────────────────
+// ─── 4. VALUE & TIMING ANALYSIS ──────────────────────────────────────────
 
 function analyzeProductValue(price: number): RiskFactor {
     if (price > 15000) {
-        return { category: 'value', label: `Premium item (₹${price.toFixed(0)}) — high refund exposure`, score: 18, severity: 'high', icon: '💎' };
+        return { category: 'value', label: `Premium item (₹${price.toFixed(0)}) — high refund exposure`, score: 18, severity: 'high', icon: 'high-value' };
     } else if (price > 5000) {
-        return { category: 'value', label: `Mid-range item (₹${price.toFixed(0)})`, score: 8, severity: 'medium', icon: '💰' };
+        return { category: 'value', label: `Mid-range item (₹${price.toFixed(0)})`, score: 8, severity: 'medium', icon: 'med-value' };
     }
-    return { category: 'value', label: `Budget item (₹${price.toFixed(0)}) — low refund risk`, score: -3, severity: 'low', icon: '🏷️' };
+    return { category: 'value', label: `Budget item (₹${price.toFixed(0)}) — low refund risk`, score: -3, severity: 'low', icon: 'low-value' };
 }
 
 function analyzeTimingRisk(orderDate: string): RiskFactor {
     const days = daysBetween(orderDate, new Date().toISOString());
     if (days <= 1) {
-        return { category: 'timing', label: `Instant return — request within 24hrs of delivery`, score: 20, severity: 'high', icon: '⚡' };
+        return { category: 'timing', label: `Instant return — request within 24hrs of delivery`, score: 20, severity: 'high', icon: 'instant' };
     } else if (days <= 3) {
-        return { category: 'timing', label: `Very fast return — ${days} days after delivery`, score: 12, severity: 'medium', icon: '🕐' };
+        return { category: 'timing', label: `Very fast return — ${days} days after delivery`, score: 12, severity: 'medium', icon: 'fast' };
     } else if (days > 30) {
-        return { category: 'timing', label: `Late return — ${days} days after delivery (outside window)`, score: 15, severity: 'high', icon: '📅' };
+        return { category: 'timing', label: `Late return — ${days} days after delivery (outside window)`, score: 15, severity: 'high', icon: 'late' };
     }
-    return { category: 'timing', label: `Normal return window — ${days} days after delivery`, score: -2, severity: 'low', icon: '📆' };
+    return { category: 'timing', label: `Normal return window — ${days} days after delivery`, score: -2, severity: 'low', icon: 'normal' };
 }
 
-// ─── 5. SMART EXCHANGE RECOMMENDATIONS ──────────────────────────────
+// ─── 5. SMART EXCHANGE RECOMMENDATIONS ───────────────────────────────────
 
 const EXCHANGE_PRODUCTS: Record<string, string[]> = {
     'Premium Leather Jacket': ['Premium Leather Jacket (different size)', 'Suede Bomber Jacket', 'Wool Overcoat'],
@@ -314,7 +314,7 @@ function generateExchangeSuggestion(params: {
     };
 }
 
-// ─── 6. MAIN ANALYSIS PIPELINE ──────────────────────────────────────
+// ─── 6. MAIN ANALYSIS PIPELINE ──────────────────────────────────────────
 
 const REASON_BASE_SCORES: Record<ReturnReasonCategory, number> = {
     damaged: 12,
@@ -327,6 +327,50 @@ const REASON_BASE_SCORES: Record<ReturnReasonCategory, number> = {
     other: 28,
 };
 
+// ─── 7. IMAGE ANALYSIS (Simulated / Placeholder for Gemini API) ────────
+
+function analyzeImage(base64: string): { classification: 'damaged' | 'used' | 'correct_condition'; risk: number; factors: RiskFactor[] } {
+    // In a real implementation, this would call Google Gemini API:
+    // const response = await gemini.generateContent([prompt, { inlineData: { data: base64, mimeType: 'image/jpeg' } }]);
+
+    // For now, we simulate a sophisticated analysis using a deterministic hash of the image data
+    // This ensures the same image always produces the same result, but different images produce different results.
+
+    let hash = 0;
+    if (base64.length === 0) return { classification: 'correct_condition', risk: 0, factors: [] };
+    for (let i = 0; i < base64.length; i++) {
+        const char = base64.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash; // Convert to 32bit integer
+    }
+    const positiveHash = Math.abs(hash);
+
+    // Deterministic simulation rules based on hash
+    const classificationRoll = positiveHash % 100;
+    let classification: 'damaged' | 'used' | 'correct_condition';
+
+    if (classificationRoll < 35) classification = 'damaged';
+    else if (classificationRoll < 60) classification = 'used';
+    else classification = 'correct_condition';
+
+    const factors: RiskFactor[] = [];
+    const classificationLabels = {
+        damaged: 'AI Analysis: Significant physical damage detected (cracks/tears)',
+        used: 'AI Analysis: Signs of wear and usage detected',
+        correct_condition: 'AI Analysis: Product appears to be in new condition',
+    };
+
+    factors.push({
+        category: 'image',
+        label: classificationLabels[classification],
+        score: classification === 'damaged' ? 0 : classification === 'used' ? 0 : -5,
+        severity: classification === 'damaged' ? 'high' : classification === 'used' ? 'medium' : 'low',
+        icon: classification === 'damaged' ? 'damage-detected' : classification === 'used' ? 'wear-detected' : 'match',
+    });
+
+    return { classification, risk: 0, factors };
+}
+
 export async function analyzeReturn(params: {
     reasonCategory: ReturnReasonCategory;
     reasonText: string;
@@ -335,21 +379,62 @@ export async function analyzeReturn(params: {
     hasImage: boolean;
     customerEmail: string;
     productName: string;
+    imageBase64?: string; // New optional parameter
 }): Promise<AIAnalysisResult> {
     // Fast async processing — under 3 seconds for demo
     await new Promise((resolve) => setTimeout(resolve, 800 + Math.random() * 600));
 
-    const { reasonCategory, reasonText, productPrice, orderDate, hasImage, customerEmail, productName } = params;
+    const { reasonCategory, reasonText, productPrice, orderDate, hasImage, customerEmail, productName, imageBase64 } = params;
 
-    // ── Run all analysis modules ──
+    // ─── Run all analysis modules ───
     const frequencyResult = analyzeReturnFrequency(customerEmail);
     const sentimentResult = analyzeSentiment(reasonText);
-    const damageResult = classifyDamage({ hasImage, reasonCategory, reasonText });
+
+    // Use image analysis if base64 provided, otherwise fall back to heuristics
+    let damageResult;
+    if (imageBase64 && hasImage) {
+        const imageAnalysis = analyzeImage(imageBase64);
+        // We still check for mismatch logic
+        const mismatch = (
+            (reasonCategory === 'damaged' && imageAnalysis.classification === 'correct_condition') ||
+            (reasonCategory === 'defective' && imageAnalysis.classification === 'correct_condition') ||
+            ((reasonCategory === 'changed_mind' || reasonCategory === 'too_small' || reasonCategory === 'too_large') && imageAnalysis.classification === 'damaged')
+        );
+
+        const factors = [...imageAnalysis.factors];
+        if (mismatch) {
+            factors.push({
+                category: 'mismatch',
+                label: `Reason–image conflict: claims "${reasonCategory.replace('_', ' ')}" but AI sees "${imageAnalysis.classification.replace('_', ' ')}"`,
+                score: 20,
+                severity: 'high',
+                icon: 'mismatch',
+            });
+        } else {
+            factors.push({
+                category: 'image',
+                label: `Image condition "${imageAnalysis.classification.replace('_', ' ')}" matches stated reason`,
+                score: -5,
+                severity: 'low',
+                icon: 'match',
+            });
+        }
+
+        damageResult = {
+            classification: imageAnalysis.classification,
+            mismatch,
+            risk: mismatch ? 20 : -5,
+            factors
+        };
+    } else {
+        damageResult = classifyDamage({ hasImage, reasonCategory, reasonText });
+    }
+
     const valueFactor = analyzeProductValue(productPrice);
     const timingFactor = analyzeTimingRisk(orderDate);
     const exchangeSuggestion = generateExchangeSuggestion({ reasonCategory, productName, productPrice });
 
-    // ── Collect all risk factors ──
+    // ─── Collect all risk factors ───
     const riskFactors: RiskFactor[] = [
         frequencyResult.factor,
         sentimentResult.factor,
@@ -358,7 +443,7 @@ export async function analyzeReturn(params: {
         timingFactor,
     ];
 
-    // ── Calculate composite fraud score (0-100) ──
+    // ─── Calculate composite fraud score (0-100) ───
     const baseScore = REASON_BASE_SCORES[reasonCategory] || 25;
     let rawScore = baseScore
         + frequencyResult.risk
@@ -371,13 +456,13 @@ export async function analyzeReturn(params: {
     rawScore += Math.floor(Math.random() * 6 - 3);
     const fraudScore = Math.max(0, Math.min(100, rawScore));
 
-    // ── Determine fraud level ──
+    // ─── Determine fraud level ───
     let fraudLevel: 'Low' | 'Medium' | 'High';
     if (fraudScore <= 30) fraudLevel = 'Low';
     else if (fraudScore <= 60) fraudLevel = 'Medium';
     else fraudLevel = 'High';
 
-    // ── Determine recommended action ──
+    // ─── Determine recommended action ───
     let recommendedAction: 'Approve Refund' | 'Suggest Exchange' | 'Reject';
     if (fraudScore >= 70) {
         recommendedAction = 'Reject';
@@ -392,50 +477,50 @@ export async function analyzeReturn(params: {
         recommendedAction = 'Suggest Exchange';
     }
 
-    // ── Confidence score ──
+    // ─── Confidence score ───
     const factorCount = riskFactors.length;
     const highSeverityCount = riskFactors.filter(f => f.severity === 'high').length;
     const confidence = Math.min(98, Math.max(68, 72 + factorCount * 2 + highSeverityCount * 3 + Math.abs(fraudScore - 50) * 0.3 + Math.floor(Math.random() * 5)));
 
-    // ── Refund loss prevented ──
+    // ─── Refund loss prevented ───
     const refundLossPrevented = recommendedAction === 'Suggest Exchange'
         ? (exchangeSuggestion?.savings || Math.round(productPrice * 0.65))
         : recommendedAction === 'Reject'
             ? Math.round(productPrice)
             : 0;
 
-    // ── Build detailed reasoning ──
+    // ─── Build detailed reasoning ───
     const sections: string[] = [];
 
     sections.push('═══ AI FRAUD INTELLIGENCE REPORT ═══');
     sections.push('');
 
     // Risk factors section
-    sections.push('📊 RISK FACTOR BREAKDOWN:');
+    sections.push('RISK FACTOR BREAKDOWN:');
     for (const f of riskFactors) {
-        const icon = f.severity === 'high' ? '🔴' : f.severity === 'medium' ? '🟡' : '🟢';
+        const icon = f.severity === 'high' ? '(!)' : f.severity === 'medium' ? '(!)' : '(OK)';
         const scoreStr = f.score > 0 ? `+${f.score}` : `${f.score}`;
-        sections.push(`  ${icon} ${f.icon} ${f.label} [${scoreStr}]`);
+        sections.push(`  ${icon} ${f.label} [${scoreStr}]`);
     }
     sections.push('');
 
     // Sentiment
-    sections.push(`🧠 SENTIMENT ANALYSIS: ${sentimentResult.score > 0 ? 'Positive' : sentimentResult.score > -0.3 ? 'Neutral' : 'Negative'} (score: ${sentimentResult.score.toFixed(2)})`);
+    sections.push(`SENTIMENT ANALYSIS: ${sentimentResult.score > 0 ? 'Positive' : sentimentResult.score > -0.3 ? 'Neutral' : 'Negative'} (score: ${sentimentResult.score.toFixed(2)})`);
 
     // Damage classification
     const classLabel = damageResult.classification.replace('_', ' ');
-    sections.push(`🖼️ IMAGE CLASSIFICATION: ${classLabel.toUpperCase()}`);
+    sections.push(`IMAGE CLASSIFICATION: ${classLabel.toUpperCase()}`);
     if (damageResult.mismatch) {
-        sections.push(`   ⚠️ MISMATCH: Stated reason does not match detected image condition`);
+        sections.push(`   WARN: MISMATCH - Stated reason does not match detected image condition`);
     }
 
     // Frequency
-    sections.push(`📈 RETURN HISTORY: ${frequencyResult.count} previous returns by this customer`);
+    sections.push(`RETURN HISTORY: ${frequencyResult.count} previous returns by this customer`);
     sections.push('');
 
     // Exchange suggestion
     if (exchangeSuggestion && recommendedAction !== 'Approve Refund') {
-        sections.push(`💡 EXCHANGE RECOMMENDATION:`);
+        sections.push(`EXCHANGE RECOMMENDATION:`);
         sections.push(`   ${exchangeSuggestion.title}`);
         sections.push(`   ${exchangeSuggestion.description}`);
         sections.push(`   Estimated savings: ₹${exchangeSuggestion.savings}`);
@@ -443,10 +528,10 @@ export async function analyzeReturn(params: {
     }
 
     // Final verdict
-    sections.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    sections.push('──────────────────────────────────────');
     sections.push(`VERDICT: ${recommendedAction.toUpperCase()} | Risk: ${fraudLevel} (${fraudScore}/100) | Confidence: ${Math.round(confidence)}%`);
     if (refundLossPrevented > 0) {
-        sections.push(`💰 Potential refund loss prevented: ₹${refundLossPrevented}`);
+        sections.push(`Potential refund loss prevented: ₹${refundLossPrevented}`);
     }
 
     return {
