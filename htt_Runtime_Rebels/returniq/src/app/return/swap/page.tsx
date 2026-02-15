@@ -2,7 +2,7 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import LeafletMap from '@/components/Map';
+// import LeafletMap from '@/components/Map';
 
 interface SwapData {
     id: string;
@@ -152,11 +152,9 @@ function SwapCoordinationContent() {
                         <div style={{ fontSize: '18px', fontWeight: 600, color: '#1a1a2e' }}>{swap.meetup.name}</div>
                         <div style={{ fontSize: '14px', color: '#6b7280', margin: '4px 0 16px' }}>{swap.meetup.address}</div>
                         <div style={{ height: '200px', borderRadius: '12px', overflow: 'hidden', border: '1px solid #e5e7eb' }}>
-                            <LeafletMap
-                                center={{ lat: swap.meetup.lat, lng: swap.meetup.lng }}
-                                zoom={15}
-                                markers={[{ lat: swap.meetup.lat, lng: swap.meetup.lng, label: swap.meetup.name }]}
-                            />
+                            <div style={{ width: '100%', height: '100%', background: '#e5e7eb', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6b7280', fontSize: '12px' }}>
+                                Map View (Unavailable in Demo)
+                            </div>
                         </div>
                     </div>
 

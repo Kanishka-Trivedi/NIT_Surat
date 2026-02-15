@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { SwapMessage } from '@/types';
-import LeafletMap from '@/components/Map';
+// import LeafletMap from '@/components/Map';
 
 interface SwapData {
     id: string;
@@ -191,11 +191,9 @@ export default function SwapCoordinationPage() {
                             padding: '0', overflow: 'hidden', marginBottom: '20px',
                             height: '300px', position: 'relative', borderRadius: '12px',
                         }}>
-                            <LeafletMap
-                                center={{ lat: swap.meetup.lat, lng: swap.meetup.lng }}
-                                zoom={15}
-                                markers={[{ lat: swap.meetup.lat, lng: swap.meetup.lng, label: swap.meetup.name }]}
-                            />
+                            <div style={{ width: '100%', height: '100%', background: '#e5e7eb', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6b7280', fontSize: '12px' }}>
+                                Map View (Unavailable)
+                            </div>
                             <div style={{
                                 position: 'absolute', bottom: '16px', left: '16px', right: '16px',
                                 background: 'white', padding: '12px', borderRadius: '8px',

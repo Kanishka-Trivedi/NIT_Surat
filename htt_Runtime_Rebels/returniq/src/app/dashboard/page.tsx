@@ -199,7 +199,7 @@ export default function DashboardPage() {
                         <div className="sidebar-logo-icon" style={{ background: accent, flexShrink: 0 }}>
                             {session.brand.name[0]}
                         </div>
-                        {!sidebarCollapsed && <div className="sidebar-logo-text">{session.brand.name}</div>}
+                        <div className={`sidebar-logo-text ${sidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100 w-auto'}`} style={{ transition: 'all 0.2s', whiteSpace: 'nowrap', overflow: 'hidden' }}>{session.brand.name}</div>
                     </a>
                     <button className="btn btn-ghost btn-icon" onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
                         style={{ fontSize: '14px', padding: '4px', flexShrink: 0 }}>
@@ -219,7 +219,7 @@ export default function DashboardPage() {
                         <a key={link.label} href={link.href} className={`sidebar-link ${link.active ? 'active' : ''}`}
                             style={{ borderLeft: link.active ? `3px solid ${accent}` : '3px solid transparent' }}>
                             <span className="sidebar-link-icon">{link.icon}</span>
-                            {!sidebarCollapsed && link.label}
+                            <span style={{ transition: 'opacity 0.2s', opacity: sidebarCollapsed ? 0 : 1, whiteSpace: 'nowrap' }}>{link.label}</span>
                         </a>
                     ))}
                 </nav>
@@ -265,7 +265,7 @@ export default function DashboardPage() {
 
                 {/* Stats */}
                 {stats && (
-                    <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
+                    <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))' }}>
                         <div className="stat-card">
                             <div className="stat-card-icon" style={{ background: `${accent}15`, color: accent }}>{Icon.box}</div>
                             <div className="stat-card-value">{stats.totalRequests}</div>
@@ -320,7 +320,7 @@ export default function DashboardPage() {
                         <span style={{ fontSize: '16px' }}>🏪</span> Kirana Return Network
                         <a href="/dashboard/kirana" style={{ marginLeft: 'auto', fontSize: '12px', color: accent, textDecoration: 'none', fontWeight: 600 }}>View All →</a>
                     </h3>
-                    <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
+                    <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))' }}>
                         <div className="stat-card" style={{ border: '2px solid #f59e0b20' }}>
                             <div className="stat-card-icon" style={{ background: '#fffbeb', color: '#d97706' }}>
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
@@ -354,7 +354,7 @@ export default function DashboardPage() {
                         <h3 style={{ fontSize: '14px', fontWeight: 700, color: '#374151', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <span style={{ fontSize: '16px' }}>♻️</span> Circular Economy Impact
                         </h3>
-                        <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
+                        <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))' }}>
                             <div className="stat-card" style={{ background: 'linear-gradient(135deg, #059669, #10b981)', border: 'none' }}>
                                 <div className="stat-card-icon" style={{ background: 'rgba(255,255,255,0.2)', color: 'white' }}>{Icon.dollar}</div>
                                 <div className="stat-card-value" style={{ color: 'white' }}>{formatCurrency(stats.resaleRevenue)}</div>
@@ -415,7 +415,7 @@ export default function DashboardPage() {
                         <h3 style={{ fontSize: '14px', fontWeight: 700, color: '#374151', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <span style={{ fontSize: '16px' }}>⭐</span> OpenLeaf Swap Metrics
                         </h3>
-                        <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
+                        <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))' }}>
                             <div className="stat-card" style={{ background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', border: 'none' }}>
                                 <div className="stat-card-icon" style={{ background: 'rgba(255,255,255,0.2)', color: 'white' }}>{Icon.refresh}</div>
                                 <div className="stat-card-value" style={{ color: 'white' }}>4</div>

@@ -4,10 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Order, RETURN_REASONS, ReturnReasonCategory, SocialProofData } from '@/types';
 import { formatCurrency, formatDate } from '@/lib/utils';
-
-function IconBrain({ className, width, height }: { className?: string; width?: string; height?: string }) {
-    return <svg className={className} width={width || "24"} height={height || "24"} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z" /><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z" /></svg>;
-}
+import { Icons } from '@/components/Icons';
 
 export default function ReturnPage() {
     const router = useRouter();
@@ -386,13 +383,34 @@ export default function ReturnPage() {
                         </div>
                     </div>
                 )}
-
                 {/* Step 5: Success & Drop-off QR */}
                 {step === 5 && (
                     <div className="animate-fadeIn">
                         <div className="card" style={{ padding: '32px', textAlign: 'center', border: '2px solid #059669' }}>
                             <div style={{ background: '#ecfdf5', color: '#059669', width: '64px', height: '64px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
                                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>
+
+                {/* Step 4: AI Processing */}
+                {step === 4 && (
+                    <div className="card" style={{ padding: '40px', textAlign: 'center' }}>
+                        <div className="ai-processing-container">
+                            {/* Scanning Animation */}
+                            <div className="ai-scanner">
+                                {previewUrl ? (
+                                    <div className="ai-scan-image-wrapper">
+                                        {isVideo ? (
+                                            <video src={previewUrl} className="ai-scan-image" style={{ objectFit: 'cover' }} autoPlay muted loop />
+                                        ) : (
+                                            <img src={previewUrl} alt="Analyzing" className="ai-scan-image" />
+                                        )}
+                                        <div className="ai-scan-line"></div>
+                                        <div className="ai-scan-overlay"></div>
+                                    </div>
+                                ) : (
+                                    <div className="ai-brain-pulse">
+                                        <Icons.Brain className="text-indigo-600" width="64" height="64" />
+                                    </div>
+                                )}
                             </div>
                             <h2 style={{ fontSize: '24px', fontWeight: 800, marginBottom: '8px' }}>Return Authorized!</h2>
                             <p style={{ color: '#6b7280', marginBottom: '24px' }}>

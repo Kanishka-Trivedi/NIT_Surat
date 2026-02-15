@@ -4,7 +4,7 @@ import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { SwapMatch, MeetupPoint } from '@/types';
 import { formatCurrency } from '@/lib/utils';
-import LeafletMap from '@/components/Map';
+// import LeafletMap from '@/components/Map';
 
 function SwapOptionsContent() {
     const router = useRouter();
@@ -269,11 +269,9 @@ function SwapOptionsContent() {
 
                                         {/* Mini Map */}
                                         <div style={{ height: '150px', borderRadius: '8px', overflow: 'hidden', border: '1px solid #e5e7eb' }}>
-                                            <LeafletMap
-                                                center={{ lat: match.meetup_suggestions[0].lat, lng: match.meetup_suggestions[0].lng }}
-                                                zoom={13}
-                                                markers={match.meetup_suggestions.map(m => ({ lat: m.lat, lng: m.lng, label: m.name }))}
-                                            />
+                                            <div style={{ width: '100%', height: '100%', background: '#e5e7eb', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6b7280', fontSize: '12px' }}>
+                                                Map View (Unavailable in Demo)
+                                            </div>
                                         </div>
                                     </div>
 

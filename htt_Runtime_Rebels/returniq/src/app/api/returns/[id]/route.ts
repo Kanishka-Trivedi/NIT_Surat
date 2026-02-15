@@ -1,5 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { updateReturnStatus } from '@/lib/mock-data';
+import { updateReturnStatus, getReturnRequests } from '@/lib/mock-data';
+
+export async function GET(
+    request: NextRequest,
+    { params }: { params: Promise<{ id: string }> }
+) {
+    const { id } = await params;
+    const requests = getReturnRequests();
+    const returnRequest = requests.find((r) => r.id === id);
+
+    if (!returnRequest) {
+        return NextResponse.json({ error: 'Return request not found' }, { status: 404 });
+    }
+
+    return NextResponse.json(returnRequest);
+}
 
 export async function PATCH(
     request: NextRequest,

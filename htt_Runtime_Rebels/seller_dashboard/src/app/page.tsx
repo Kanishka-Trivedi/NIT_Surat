@@ -176,6 +176,60 @@ export default function SellerDashboard() {
     }, 100);
   }, []);
 
+    const stats = MOCK_STATS;
+    const hubs = HUB_DATA;
+
+    return (
+        <div className="min-h-screen bg-[#020202] text-white selection:bg-indigo-500/30 overflow-x-hidden font-sans">
+            <MeshGradient />
+
+            <div className="max-w-7xl mx-auto px-8 py-12">
+                <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-16 gap-8">
+                    <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
+                        <div className="flex items-center gap-3 mb-4">
+                            <span className="px-3 py-1 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(99,102,241,0.2)]">Global Interface</span>
+                            <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_#10b981]"></span>
+                        </div>
+                        <h1 className="text-6xl font-black tracking-tighter text-white uppercase italic">Command <span className="text-white/40">Center</span></h1>
+                        <p className="text-white/30 mt-4 text-sm font-black uppercase tracking-[0.3em] flex items-center gap-2">
+                            {Icon.globe} Monitoring {hubs.length} Active Logistics Hubs
+                        </p>
+                    </motion.div>
+
+                    <div className="flex gap-4">
+                        <motion.button
+                            whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+                            className="bg-white/5 text-white px-8 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] border border-white/10 hover:bg-white/10 transition-all"
+                        >
+                            Logistics Map
+                        </motion.button>
+                        <motion.button
+                            whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+                            className="bg-white text-black px-8 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-white/5 hover:bg-slate-200 transition-all"
+                        >
+                            Bulk Dispatch
+                        </motion.button>
+                    </div>
+                </header>
+
+                <div className="stats-grid gap-6 mb-16" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))' }}>
+                    {[
+                        { label: 'Revenue Saved', value: formatCurrency(stats.totalRefundSaved), color: 'indigo' },
+                        { label: 'Hyperlocal Savings', value: '₹2,92,400', color: 'amber', sub: '88% Pickup reduction' },
+                        { label: 'Fraud Blocked', value: formatCurrency(stats.totalLossPrevented), color: 'rose' },
+                        { label: 'Eco Offset', value: `${stats.co2Avoided} kg`, color: 'emerald', sub: 'CO2 Bulk Diversion' }
+                    ].map((s, i) => (
+                        <HUDCard key={i} className="p-10 group" glow>
+                            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-white/5 to-transparent"></div>
+                            <div className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] mb-4">{s.label}</div>
+                            <div className={`text-3xl font-black tracking-tighter ${s.color === 'amber' ? 'text-amber-400' : s.color === 'rose' ? 'text-rose-400' : s.color === 'emerald' ? 'text-emerald-400' : 'text-white'}`}>
+                                {s.value}
+                            </div>
+                            {s.sub && <div className="text-[9px] font-black text-white/20 mt-3 uppercase tracking-widest">{s.sub}</div>}
+                        </HUDCard>
+                    ))}
+                </div>
+
   return (
     <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#0b0f19' }}>
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />

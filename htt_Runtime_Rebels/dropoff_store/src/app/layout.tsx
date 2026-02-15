@@ -16,6 +16,7 @@ export default function RootLayout({
     const sellerUrl = process.env.NEXT_PUBLIC_SELLER_URL || 'http://localhost:3002';
     return (
         <html lang="en">
+
             <body>
                 <header style={{ position: 'sticky', top: 0, zIndex: 50, background: '#020202', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
                     <div style={{ maxWidth: 1100, margin: '0 auto', padding: '10px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -31,6 +32,8 @@ export default function RootLayout({
                 </header>
                 {children}
             </body>
+
+
         </html>
     );
 }

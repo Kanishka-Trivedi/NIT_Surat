@@ -520,7 +520,8 @@ export default function KiranaPartnerPortal() {
                                     <h3 className="text-6xl font-black mb-2 tracking-tighter text-white uppercase italic">{recentScan.return_id}</h3>
                                     <p className="text-sm text-white/40 font-black uppercase tracking-widest">{recentScan.product_name}</p>
 
-                                    <div className="mt-16 grid grid-cols-2 gap-10">
+                                    {/* Stats */}
+                                    <div className="stats-grid mt-16 grid grid-cols-1 sm:grid-cols-2 gap-10" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))' }}>
                                         <div className="text-left py-4 px-6 bg-white/5 rounded-2xl border border-white/5">
                                             <div className="text-[9px] font-black text-white/30 uppercase tracking-widest mb-1">AI Verdict</div>
                                             <div className="text-base font-black text-emerald-400">AUTH_PASS</div>
