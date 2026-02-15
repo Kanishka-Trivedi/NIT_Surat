@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { KiranaNotification } from '@/types';
+import { addNotifications } from '@/lib/notifications-store';
 
 // POST — simulate QR scan at kirana → trigger AI → return decision
 export async function POST(request: NextRequest) {
@@ -85,6 +86,7 @@ export async function POST(request: NextRequest) {
             },
         ];
 
+        addNotifications(notifications);
         return NextResponse.json({
             success: true,
             dropoffId,

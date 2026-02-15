@@ -387,54 +387,70 @@ export default function ReturnPage() {
                     </div>
                 )}
 
-                {/* Step 4: AI Processing */}
-                {step === 4 && (
-                    <div className="card" style={{ padding: '40px', textAlign: 'center' }}>
-                        <div className="ai-processing-container">
-                            {/* Scanning Animation */}
-                            <div className="ai-scanner">
-                                {previewUrl ? (
-                                    <div className="ai-scan-image-wrapper">
-                                        {isVideo ? (
-                                            <video src={previewUrl} className="ai-scan-image" style={{ objectFit: 'cover' }} autoPlay muted loop />
-                                        ) : (
-                                            <img src={previewUrl} alt="Analyzing" className="ai-scan-image" />
-                                        )}
-                                        <div className="ai-scan-line"></div>
-                                        <div className="ai-scan-overlay"></div>
-                                    </div>
-                                ) : (
-                                    <div className="ai-brain-pulse">
-                                        <IconBrain className="text-indigo-600" width="64" height="64" />
-                                    </div>
-                                )}
+                {/* Step 5: Success & Drop-off QR */}
+                {step === 5 && (
+                    <div className="animate-fadeIn">
+                        <div className="card" style={{ padding: '32px', textAlign: 'center', border: '2px solid #059669' }}>
+                            <div style={{ background: '#ecfdf5', color: '#059669', width: '64px', height: '64px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>
                             </div>
-
-                            <h3 className="ai-processing-title">AI Intelligence Processing</h3>
-                            <p className="ai-processing-sub">
-                                ReturnIQ is analyzing {selectedFile ? 'product condition' : 'return patterns'} and calculating risk score...
+                            <h2 style={{ fontSize: '24px', fontWeight: 800, marginBottom: '8px' }}>Return Authorized!</h2>
+                            <p style={{ color: '#6b7280', marginBottom: '24px' }}>
+                                Your return for <strong>{order?.product_name}</strong> has been approved by our AI.
                             </p>
 
-                            <div className="ai-steps">
-                                {['Analyzing return reason & sentiment...', 'Inspecting product image for damage...', 'Checking customer return history...', 'Calculating fraud risk score...'].map((text, i) => (
-                                    <div
-                                        key={i}
-                                        className={`ai-step-item ${aiStep > i ? 'completed' : ''} ${aiStep === i + 1 ? 'active' : ''}`}
-                                    >
-                                        <div className="ai-step-icon">
-                                            {aiStep > i ? <span style={{ color: '#059669' }}>✓</span> : aiStep === i + 1 ? <span className="spinner-sm"></span> : '○'}
-                                        </div>
-                                        <span className="ai-step-text">{text}</span>
-                                    </div>
-                                ))}
+                            {/* The QR Code (Simulated with a stylized SVG) */}
+                            <div style={{ background: 'white', padding: '24px', borderRadius: '16px', border: '1px solid #e5e7eb', display: 'inline-block', marginBottom: '24px', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}>
+                                <div style={{ background: '#111827', width: '160px', height: '160px', padding: '10px', borderRadius: '8px' }}>
+                                    <svg viewBox="0 0 100 100" fill="white">
+                                        <rect x="0" y="0" width="30" height="30" />
+                                        <rect x="70" y="0" width="30" height="30" />
+                                        <rect x="0" y="70" width="30" height="30" />
+                                        <rect x="40" y="40" width="20" height="20" />
+                                        <rect x="25" y="10" width="5" height="5" />
+                                        <rect x="10" y="25" width="5" height="5" />
+                                        <rect x="50" y="10" width="10" height="10" />
+                                        <rect x="80" y="40" width="10" height="10" />
+                                        <rect x="10" y="50" width="10" height="10" />
+                                        <rect x="40" y="80" width="10" height="10" />
+                                        <rect x="85" y="85" width="5" height="5" />
+                                        <rect x="70" y="45" width="5" height="5" />
+                                    </svg>
+                                </div>
+                                <div style={{ marginTop: '12px', fontSize: '11px', fontWeight: 700, color: '#4f46e5', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                                    RET-{Math.floor(Math.random() * 9000) + 1000}
+                                </div>
                             </div>
+
+                            <div style={{ background: '#f8fafc', borderRadius: '12px', padding: '20px', textAlign: 'left', marginBottom: '24px' }}>
+                                <h3 style={{ fontSize: '15px', fontWeight: 700, marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
+                                    Next Steps: Drop-off
+                                </h3>
+                                <ul style={{ padding: '0', margin: '0', listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                    {[
+                                        '1. Visit the nearest ReturnIQ Hub (Vikas General Store).',
+                                        '2. Show this QR code to the store owner.',
+                                        '3. Hand over the package (No need to pack it!).',
+                                        '4. Get your refund/exchange instantly on check-in.'
+                                    ].map((s, i) => (
+                                        <li key={i} style={{ fontSize: '13px', color: '#4b5563', display: 'flex', gap: '8px' }}>
+                                            <span style={{ fontWeight: 800, color: '#4f46e5' }}>•</span> {s}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+
+                            <button className="btn btn-outline" style={{ width: '100%' }} onClick={() => router.push('/')}>
+                                Back to Home
+                            </button>
                         </div>
                     </div>
                 )}
             </div>
 
             <footer className="footer">
-                <div className="container">© 2026 ReturnIQ</div>
+                <div className="container">© 2026 ReturnIQ &bull; Smart Logistics Network</div>
             </footer>
         </div>
     );

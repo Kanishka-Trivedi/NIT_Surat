@@ -29,7 +29,7 @@ const HUDCard = ({ children, className = "", glow = false }: { children: React.R
 );
 
 const NeonBadge = ({ children, color = "indigo" }: { children: React.ReactNode, color?: string }) => {
-    const colors: any = {
+    const colors: Record<string, string> = {
         indigo: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20 shadow-indigo-500/20",
         emerald: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20 shadow-emerald-500/20",
         amber: "bg-amber-500/10 text-amber-400 border-amber-500/20 shadow-amber-500/20",
@@ -52,6 +52,7 @@ const Icon = {
 
 export default function KiranaPartnerPortal() {
     const [selectedStore, setSelectedStore] = useState<KiranaStore | null>(null);
+    const [searchQuery, setSearchQuery] = useState('');
     const [dropoffs, setDropoffs] = useState<KiranaDropoff[]>(INITIAL_DROPOFFS);
     const [activeTab, setActiveTab] = useState<'overview' | 'queue' | 'ledger'>('overview');
 
@@ -97,14 +98,38 @@ export default function KiranaPartnerPortal() {
         }, 4500);
     };
 
-    const confirmDropoff = () => {
+    const confirmDropoff = async () => {
         if (recentScan) {
+            try {
+                const base = process.env.NEXT_PUBLIC_RETURNIQ_URL || 'http://localhost:3000';
+                await fetch(`${base}/api/kirana/scan`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        dropoffId: recentScan.id,
+                        returnId: recentScan.return_id,
+                        productName: recentScan.product_name,
+                        productPrice: recentScan.product_price,
+                        returnReason: 'dropoff_confirmed',
+                        customerEmail: 'demo@returniq.com'
+                    })
+                });
+            } catch {}
             setDropoffs([recentScan, ...dropoffs]);
             setShowScanner(false);
             setRecentScan(null);
             setScanStage('idle');
         }
     };
+
+    const filteredStores = useMemo(() => {
+        const q = searchQuery.trim().toLowerCase();
+        if (!q) return MOCK_KIRANA_STORES;
+        return MOCK_KIRANA_STORES.filter(s =>
+            s.name.toLowerCase().includes(q) ||
+            s.address.toLowerCase().includes(q)
+        );
+    }, [searchQuery]);
 
     if (!selectedStore) {
         return (
@@ -125,10 +150,26 @@ export default function KiranaPartnerPortal() {
                             RQ
                         </motion.div>
                         <h1 className="text-4xl font-black tracking-tighter mb-4 text-transparent bg-clip-text bg-gradient-to-b from-white to-white/50">Partner Terminal</h1>
-                        <p className="text-slate-500 text-sm font-medium mb-12 uppercase tracking-[0.2em] leading-relaxed">System Authentication Required</p>
+                        <p className="text-slate-500 text-sm font-medium mb-8 uppercase tracking-[0.2em] leading-relaxed">System Authentication Required</p>
+
+                        <div className="flex gap-3 mb-6">
+                            <input
+                                type="text"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                placeholder="Search store or area"
+                                className="flex-1 bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/50 transition-all placeholder:text-white/20 text-white"
+                            />
+                            <button
+                                onClick={() => setSearchQuery('')}
+                                className="px-5 py-4 bg-white/10 border border-white/10 rounded-2xl text-white/70 hover:text-white hover:bg-white/20 transition-all text-xs font-black uppercase tracking-[0.3em]"
+                            >
+                                Clear
+                            </button>
+                        </div>
 
                         <div className="grid grid-cols-1 gap-4">
-                            {MOCK_KIRANA_STORES.map((store, i) => (
+                            {filteredStores.map((store, i) => (
                                 <motion.button
                                     key={store.id}
                                     initial={{ opacity: 0, x: -20 }}
@@ -140,8 +181,15 @@ export default function KiranaPartnerPortal() {
                                     className="p-6 text-left bg-white/5 border border-white/10 rounded-2xl transition-all shadow-sm flex justify-between items-center group"
                                 >
                                     <div>
-                                        <div className="font-black text-lg text-white group-hover:text-indigo-400 transition-colors uppercase tracking-tight">{store.name}</div>
-                                        <div className="text-[10px] text-slate-500 font-black uppercase tracking-widest mt-1 opacity-60">{store.address}</div>
+                                        <div className="flex items-center gap-3">
+                                            <div className="font-black text-lg text-white group-hover:text-indigo-400 transition-colors uppercase tracking-tight">{store.name}</div>
+                                            <NeonBadge color="emerald">Verified</NeonBadge>
+                                        </div>
+                                        <div className="text-[10px] text-slate-500 font-black uppercase tracking-widest mt-2 opacity-60">{store.address}</div>
+                                        <div className="mt-3 flex items-center gap-2 text-[11px] text-white/60 font-black">
+                                            <span className="inline-flex items-center px-2 py-1 rounded-full bg-white/5 border border-white/10">{store.rating.toFixed(1)}★</span>
+                                            <span className="text-white/30">{store.total_reviews} reviews</span>
+                                        </div>
                                     </div>
                                     <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-indigo-500/20 group-hover:text-indigo-400 transition-all border border-white/5">
                                         →
